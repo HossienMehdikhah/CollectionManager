@@ -35,7 +35,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\WinUI.Core\WinUI.Core.csproj" />
+    <ProjectReference Include="..\WinUI.Core\Core.csproj" />
   </ItemGroup>
   <ItemGroup>
     <None Update="appsettings.json">

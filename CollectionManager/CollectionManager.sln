@@ -5,7 +5,9 @@ VisualStudioVersion = 17.8.34330.188
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WinUI", "WinUI\WinUI.csproj", "{29B18444-6EB4-4681-883F-EA6528756459}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WinUI.Core", "WinUI.Core\WinUI.Core.csproj", "{1C82ECA1-0E2D-4C92-AD41-7E940B4C043B}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Core", "WinUI.Core\Core.csproj", "{1C82ECA1-0E2D-4C92-AD41-7E940B4C043B}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConsoleApp", "ConsoleApp\ConsoleApp.csproj", "{D26877EE-F59F-4E83-B3A8-A41F14F0EBA8}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -59,6 +61,22 @@ Global
 		{1C82ECA1-0E2D-4C92-AD41-7E940B4C043B}.Release|x64.Build.0 = Release|x64
 		{1C82ECA1-0E2D-4C92-AD41-7E940B4C043B}.Release|x86.ActiveCfg = Release|x86
 		{1C82ECA1-0E2D-4C92-AD41-7E940B4C043B}.Release|x86.Build.0 = Release|x86
+		{D26877EE-F59F-4E83-B3A8-A41F14F0EBA8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D26877EE-F59F-4E83-B3A8-A41F14F0EBA8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D26877EE-F59F-4E83-B3A8-A41F14F0EBA8}.Debug|arm64.ActiveCfg = Debug|Any CPU
+		{D26877EE-F59F-4E83-B3A8-A41F14F0EBA8}.Debug|arm64.Build.0 = Debug|Any CPU
+		{D26877EE-F59F-4E83-B3A8-A41F14F0EBA8}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{D26877EE-F59F-4E83-B3A8-A41F14F0EBA8}.Debug|x64.Build.0 = Debug|Any CPU
+		{D26877EE-F59F-4E83-B3A8-A41F14F0EBA8}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{D26877EE-F59F-4E83-B3A8-A41F14F0EBA8}.Debug|x86.Build.0 = Debug|Any CPU
+		{D26877EE-F59F-4E83-B3A8-A41F14F0EBA8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D26877EE-F59F-4E83-B3A8-A41F14F0EBA8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D26877EE-F59F-4E83-B3A8-A41F14F0EBA8}.Release|arm64.ActiveCfg = Release|Any CPU
+		{D26877EE-F59F-4E83-B3A8-A41F14F0EBA8}.Release|arm64.Build.0 = Release|Any CPU
+		{D26877EE-F59F-4E83-B3A8-A41F14F0EBA8}.Release|x64.ActiveCfg = Release|Any CPU
+		{D26877EE-F59F-4E83-B3A8-A41F14F0EBA8}.Release|x64.Build.0 = Release|Any CPU
+		{D26877EE-F59F-4E83-B3A8-A41F14F0EBA8}.Release|x86.ActiveCfg = Release|Any CPU
+		{D26877EE-F59F-4E83-B3A8-A41F14F0EBA8}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
