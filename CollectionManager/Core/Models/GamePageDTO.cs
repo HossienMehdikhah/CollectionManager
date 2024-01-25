@@ -2,7 +2,7 @@
 
 public class GamePageDTO
 {
-    public string Name { get; set; }= string.Empty;
+    public string Name { get; set; }= "No Name";
     public Uri? URL { get; set; }
     public DateOnly PublishDate { get; set; }
     public MarkedType MarkedType { get; set; }

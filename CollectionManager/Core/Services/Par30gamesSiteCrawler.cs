@@ -1,55 +1,62 @@
 ﻿using AngleSharp;
 using AngleSharp.Dom;
 using CollectionManager.Core.Contracts.Services;
+using CollectionManager.Core.Factories;
 using CollectionManager.Core.Models;
+using Flurl.Http;
 
 namespace CollectionManager.Core.Services;
-public class Par30gamesHtmlParserService : IGameSiteCrawler
+public class Par30gamesSiteCrawler(AngleSharpFactory _angleSharpFactory) : IGameSiteCrawler
 {
-    private const string baseUrl = "https://par30games.net/";
+    private const string baseUrl = "https://par30games.net/pc/page/{0}/";
+    private const byte maxPostPerPage = 8;
 
-    public string CollectionPageURL => baseUrl + "pc";
-    public async Task<IEnumerable<GamePageDTO>> GetGamePagesLinkAsync(string htmlDocument)
+    public async IAsyncEnumerable<GamePageDTO> GetFeedAsync(uint skipPostCount, uint takePostCount)
     {
-        var config = Configuration.Default.WithDefaultLoader();
-        BrowsingContext context = new(config);
+        IBrowsingContext context = _angleSharpFactory.CreateDefualt();
+        var skipPage = skipPostCount / maxPostPerPage;
+        var uri = string.Format(baseUrl, ++skipPage);
+        var htmlDocument = await uri.GetStringAsync();
         var document = await context.OpenAsync(x => x.Content(htmlDocument));
-        var Articles = document.QuerySelectorAll(".post.icon-steam");
+        await foreach (var item in GetGamePagesLinkAsync(document))
+        {
+            yield return item;
+        }
+    }
+
+
+    public async IAsyncEnumerable<GamePageDTO> GetGamePagesLinkAsync(IDocument htmlDocument)
+    {
+        var Articles = htmlDocument.QuerySelectorAll(".post.icon-steam");
         if (Articles.Length == 0) throw new Exception("HTML has not Any GamePageLink");
-        List<GamePageDTO> pages = [];
+        IBrowsingContext context = _angleSharpFactory.CreateDefualt();
+
         foreach (var Article in Articles)
         {
-            try
-            {
-                var url = GetUrl(Article);
-                GamePageDTO gamePage = new()
-                {
-                    Name = GameNameNormalize(url.ToString()),
-                    URL = url,
-                    PublishDate = GetDateTime(Article),
-                };
-                pages.Add(gamePage);
-            }
-            catch (Exception ex)
-            {
+            var url = GetUrl(Article);
+            var pageContentHtml = await url.GetStringAsync();
+            var document = await context.OpenAsync(x => x.Content(pageContentHtml));
 
-            }
+            GamePageDTO gamePage = new()
+            {
+                Name = GameNameNormalize(url.ToString()),
+                URL = url,
+                PublishDate = GetDateTime(Article),
+                Content = GetGameContentAsync(document),
+            };
+            yield return gamePage;
         }
-        return pages;
     }
-    public async Task<GamePageContentDTO> GetGamePageAsync(string htmlDocument)
+
+    private GamePageContentDTO GetGameContentAsync(IDocument htmlDocument)
     {
-        var config = Configuration.Default.WithDefaultLoader();
-        BrowsingContext context = new(config);
-        var document = await context.OpenAsync(x => x.Content(htmlDocument));
         return new GamePageContentDTO()
         {
-            CoverLink = GetGameCover(document),
-            Summery = GetSummery(document),
-            GalleryLink = GetGalleryLink(document),
+            CoverLink = GetGameCover(htmlDocument),
+            Summery = GetSummery(htmlDocument),
+            GalleryLink = GetGalleryLink(htmlDocument),
         };
     }
-
     private string GetSummery(IDocument document)
     {
         var temp = document.QuerySelector(".post-content")

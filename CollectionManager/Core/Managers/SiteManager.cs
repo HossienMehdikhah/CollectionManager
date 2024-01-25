@@ -1,30 +1,16 @@
 ﻿using CollectionManager.Core.Contracts.Services;
 using CollectionManager.Core.Models;
-using Flurl.Http;
-
 namespace CollectionManager.Core.Managers;
 
 public class SiteManager(IGameSiteCrawler _gameSiteCrawler)
 {
-    public async Task<IEnumerable<GamePageDTO>> GetFeedFromGalleryPage()
+    public IAsyncEnumerable<GamePageDTO> GetFeedFromGalleryPage()
     {
-        try
-        {
-            var htmlDocument = await _gameSiteCrawler.CollectionPageURL.GetStringAsync(); ;
-            var gamePage = await _gameSiteCrawler.GetGamePagesLinkAsync(htmlDocument);
-            //FilterMarkedGame(ref gamePage);
-            //DefineGameType(gamePage);
-            return gamePage;
-        }
-        catch (HttpRequestException ex)
-        {
-            throw;
-        }
-        catch (Exception ex)
-        {
-            throw;
-        }
+        return _gameSiteCrawler.GetFeedAsync(0, 0);
+        //FilterMarkedGame(ref gamePage);
+        //DefineGameType(gamePage);
     }
+
     //public async Task<GamePageDto?> GetGameLink(string gameName)
     //{
     //    try
