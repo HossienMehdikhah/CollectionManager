@@ -1,13 +1,17 @@
 ﻿using CollectionManager.Core.Managers;
 using CollectionManager.Core.Models;
 using CommunityToolkit.Mvvm.ComponentModel;
+using Microsoft.UI.Xaml;
+using Newtonsoft.Json.Linq;
 namespace CollectionManager.WinUI.ViewModels;
 
 public class MainpageViewModel(SiteManager siteManager) : ObservableObject
 {
     #region Property_Field
     private GamePageDTO currentPage = new();
-    private bool isLoading = false;
+    private bool progressRingIsActive = true;
+    private Visibility progressRingVisibility = Visibility.Visible;
+    private bool nextButtonIsEnable = false;
     #endregion
 
     private readonly List<GamePageDTO> gamePageList = [];
@@ -21,11 +25,29 @@ public class MainpageViewModel(SiteManager siteManager) : ObservableObject
             SetProperty(ref currentPage, value);
         }
     }
- 
-    public bool IsLoading
+    public bool ProgressRingIsActive
     {
-        get => isLoading;
-        set => SetProperty(ref isLoading, value);
+        get => progressRingIsActive;
+        private set
+        {
+            SetProperty(ref progressRingIsActive, value);
+        }
+    }
+    public Visibility ProgressRingVisibility
+    {
+        get => progressRingVisibility;
+        private set
+        {
+            SetProperty(ref progressRingVisibility, value);
+        }
+    }
+    public bool NextButtonIsEnable
+    {
+        get => nextButtonIsEnable;
+        private set
+        {
+            SetProperty(ref nextButtonIsEnable, value);
+        }
     }
 
     public async Task Init()
@@ -35,10 +57,23 @@ public class MainpageViewModel(SiteManager siteManager) : ObservableObject
             gamePageList.Add(gamePage);
             if (gamePageList.Count == 1)
             {
-                IsLoading = false;
                 gamePageListIndex++;
                 CurrentPage = gamePageList.ElementAt(gamePageListIndex);
+                Deactivate();
             }
         }
+    }
+
+    private void Activate()
+    {
+        ProgressRingIsActive = true;
+        ProgressRingVisibility = Visibility.Visible;
+        NextButtonIsEnable = false;
+    }
+    private void Deactivate()
+    {
+        ProgressRingIsActive = false;
+        ProgressRingVisibility = Visibility.Collapsed;
+        NextButtonIsEnable = true;
     }
 }

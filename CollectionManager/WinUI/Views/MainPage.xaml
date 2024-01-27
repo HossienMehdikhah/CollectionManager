@@ -48,7 +48,6 @@
                 Margin="10,5,10,5"
                 BorderBrush="Yellow"
                 BorderThickness="1">
-                <ProgressRing x:Name="progressRing" IsActive="{x:Bind viewModel.IsLoading}" />
                 <ContentControl
                     HorizontalAlignment="Stretch"
                     VerticalAlignment="Stretch"
@@ -92,8 +91,8 @@
                         <Grid Grid.Row="1">
                             <Grid.RowDefinitions>
                                 <RowDefinition Height="10*" />
-                                <RowDefinition Height="70*" />
-                                <RowDefinition Height="20*" />
+                                <RowDefinition Height="65*" />
+                                <RowDefinition Height="25*" />
                             </Grid.RowDefinitions>
                             <TextBlock
                                 x:Name="TitleTextBlock"
@@ -131,6 +130,12 @@
                         </Grid>
                     </Grid>
                 </ContentControl>
+                <Grid
+                    Background="LightGray"
+                    Opacity="0.8"
+                    Visibility="{x:Bind viewModel.ProgressRingVisibility, Mode=OneWay}">
+                    <ProgressRing x:Name="progressRing" IsActive="{x:Bind viewModel.ProgressRingIsActive, Mode=OneWay}" />
+                </Grid>
             </Grid>
             <Grid Grid.Row="2" Grid.Column="1">
                 <Grid.ColumnDefinitions>
@@ -145,7 +150,8 @@
                 <Button
                     x:Name="NextButton"
                     Grid.Column="3"
-                    Content="Next" />
+                    Content="Next"
+                    IsEnabled="{x:Bind viewModel.NextButtonIsEnable, Mode=OneWay}" />
             </Grid>
         </Grid>
     </Grid>
