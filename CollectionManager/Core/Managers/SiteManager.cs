@@ -1,14 +1,17 @@
 ﻿using CollectionManager.Core.Contracts.Services;
 using CollectionManager.Core.Models;
+using Microsoft.Extensions.Options;
 namespace CollectionManager.Core.Managers;
 
-public class SiteManager(IGameSiteCrawler _gameSiteCrawler)
+public class SiteManager(IGameSiteCrawler _gameSiteCrawler, IOptions<CollectionManagerOption> option)
 {
+    private uint fetchPostCount = 0;
+    private CollectionManagerOption collectionManagerOption= option.Value;
     public IAsyncEnumerable<GamePageDTO> GetFeedFromGalleryPage()
     {
-        return _gameSiteCrawler.GetFeedAsync(0, 0);
+        return _gameSiteCrawler.GetFeedAsync(fetchPostCount, collectionManagerOption.MaxAvailablePost);
         //FilterMarkedGame(ref gamePage);
-        //DefineGameType(gamePage);
+        //DefineGameType(gamePage); 
     }
 
     //public async Task<GamePageDto?> GetGameLink(string gameName)

@@ -20,19 +20,19 @@ internal class DIConfig
         services.AddTransient<AngleSharpFactory>();
         return services;
     }
-    public static void Pages(IServiceCollection services)
+    private static void Pages(IServiceCollection services)
     {
         services.AddTransient<MainPage>();
     }
-    public static void ViewModels(IServiceCollection services)
+    private static void ViewModels(IServiceCollection services)
     {
         services.AddTransient<MainpageViewModel>();
     }
-    public static void Managers(IServiceCollection services)
+    private static void Managers(IServiceCollection services)
     {
         services.AddTransient<SiteManager>();
     }
-    public static void Services(IServiceCollection services)
+    private static void Services(IServiceCollection services)
     {
         services.AddTransient<IGameSiteCrawler, Par30gamesSiteCrawler>();
     }

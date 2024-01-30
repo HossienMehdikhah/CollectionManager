@@ -1,5 +1,9 @@
-﻿using CollectionManager.WinUI.Config;
+﻿using CollectionManager.Core.Models;
+using CollectionManager.WinUI.Config;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Options;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Controls.Primitives;
@@ -28,18 +32,20 @@ namespace WinUI
     /// </summary>
     public partial class App : Application
     {
-        private readonly IServiceProvider _serviceProvider;
+        private readonly IHost host;
         private Window _mainwindow;
 
         public App()
         {
-            ServiceCollection services = new();
-            _serviceProvider = DIConfig.Config(services).BuildServiceProvider();
+            var builder = Host.CreateApplicationBuilder();
+            builder.Configuration.AddJsonFile("appsettings.json");
+            DIConfig.Config(builder.Services);
+            builder.Services.Configure<CollectionManagerOption>(builder.Configuration.GetRequiredSection(nameof(CollectionManagerOption)));
+            host = builder.Build();
             this.InitializeComponent();
         }
-        public new static App Current => (App)Application.Current;
 
-        public static T GetServices<T>() where T : class => Current._serviceProvider.GetRequiredService<T>();
+        public static T GetServices<T>() where T : class => ((App)Current).host.Services.GetRequiredService<T>();
 
         /// <summary>
         /// Invoked when the application is launched.
