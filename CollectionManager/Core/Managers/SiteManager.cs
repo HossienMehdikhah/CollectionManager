@@ -7,9 +7,13 @@ public class SiteManager(IGameSiteCrawler _gameSiteCrawler, IOptions<CollectionM
 {
     private uint fetchPostCount = 0;
     private CollectionManagerOption collectionManagerOption= option.Value;
-    public IAsyncEnumerable<GamePageDTO> GetFeedFromGalleryPage()
+    public async IAsyncEnumerable<GamePageDTO> GetFeedFromGalleryPage()
     {
-        return _gameSiteCrawler.GetFeedAsync(fetchPostCount, collectionManagerOption.MaxAvailablePost);
+        await foreach (var item in _gameSiteCrawler.GetFeedAsync(fetchPostCount, collectionManagerOption.MaxAvailablePost))
+        {
+            fetchPostCount++;
+            yield return item;
+        }
         //FilterMarkedGame(ref gamePage);
         //DefineGameType(gamePage); 
     }

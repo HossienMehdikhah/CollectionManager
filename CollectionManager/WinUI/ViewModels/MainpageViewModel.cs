@@ -1,11 +1,12 @@
 ﻿using CollectionManager.Core.Managers;
 using CollectionManager.Core.Models;
 using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
+using Microsoft.Extensions.Options;
 using Microsoft.UI.Xaml;
-using Newtonsoft.Json.Linq;
 namespace CollectionManager.WinUI.ViewModels;
 
-public class MainpageViewModel(SiteManager siteManager) : ObservableObject
+public class MainpageViewModel : ObservableObject
 {
     #region Property_Field
     private GamePageDTO currentPage = new();
@@ -15,11 +16,22 @@ public class MainpageViewModel(SiteManager siteManager) : ObservableObject
     #endregion
 
     private readonly List<GamePageDTO> gamePageList = [];
+    private readonly SiteManager siteManager;
+    private readonly CollectionManagerOption option;
     private int gamePageListIndex = -1;
+    private bool isBackgroundWorkerRunning;
+
+    public MainpageViewModel(SiteManager siteManager, IOptions<CollectionManagerOption> option)
+    {
+        this.siteManager = siteManager;
+        this.option = option.Value;
+        NextButtonCommand = new AsyncRelayCommand(NextButtonEvent);
+        PreviousButtonCommand = new RelayCommand(PreviousButtonEvent);
+    }
 
     public GamePageDTO CurrentPage
     {
-        get => gamePageListIndex < 0 ? currentPage : gamePageList.ElementAt(gamePageListIndex);
+        get => gamePageListIndex < 0 ? currentPage : gamePageList[gamePageListIndex];
         set
         {
             SetProperty(ref currentPage, value);
@@ -41,39 +53,68 @@ public class MainpageViewModel(SiteManager siteManager) : ObservableObject
             SetProperty(ref progressRingVisibility, value);
         }
     }
-    public bool NextButtonIsEnable
-    {
-        get => nextButtonIsEnable;
-        private set
-        {
-            SetProperty(ref nextButtonIsEnable, value);
-        }
-    }
+    public IAsyncRelayCommand NextButtonCommand { get; set; }
+    public IRelayCommand PreviousButtonCommand { get; set; }
 
     public async Task Init()
     {
-        await foreach (var gamePage in siteManager.GetFeedFromGalleryPage())
+        await FetchPostsAndShowFirstItem();
+    }
+    private async Task NextButtonEvent()
+    {
+        if (gamePageListIndex + 2 <= gamePageList.Count)
         {
-            gamePageList.Add(gamePage);
-            if (gamePageList.Count == 1)
+            CurrentPage = gamePageList[++gamePageListIndex];
+            if (!isBackgroundWorkerRunning && gamePageList.Count - (gamePageListIndex + 1) <= option.SearchThreshold)
             {
-                gamePageListIndex++;
-                CurrentPage = gamePageList.ElementAt(gamePageListIndex);
-                Deactivate();
+                isBackgroundWorkerRunning = true;
+                await foreach (var gamePage in siteManager.GetFeedFromGalleryPage())
+                {
+                    gamePageList.Add(gamePage);
+                }
+                isBackgroundWorkerRunning = false;
             }
+        }
+        else
+        {
+            if(!isBackgroundWorkerRunning)
+                await FetchPostsAndShowFirstItem();
+        }
+    }
+    private void PreviousButtonEvent()
+    {
+        if(gamePageListIndex >=0)
+        {
+            CurrentPage = gamePageList[--gamePageListIndex];
         }
     }
 
-    private void Activate()
+    private async Task FetchPostsAndShowFirstItem()
+    {
+        ActivateLoading();
+        isBackgroundWorkerRunning = true;
+        bool isFirstPost = true;
+        await foreach (var gamePage in siteManager.GetFeedFromGalleryPage())
+        {
+            gamePageList.Add(gamePage);
+            if (isFirstPost)
+            {
+                isFirstPost = false;
+                gamePageListIndex++;
+                CurrentPage = gamePageList.ElementAt(gamePageListIndex);
+                DeactivateLoading();
+            }
+        }
+        isBackgroundWorkerRunning = false;
+    }
+    private void ActivateLoading()
     {
         ProgressRingIsActive = true;
         ProgressRingVisibility = Visibility.Visible;
-        NextButtonIsEnable = false;
     }
-    private void Deactivate()
+    private void DeactivateLoading()
     {
         ProgressRingIsActive = false;
         ProgressRingVisibility = Visibility.Collapsed;
-        NextButtonIsEnable = true;
     }
 }

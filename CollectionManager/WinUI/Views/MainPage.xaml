@@ -146,12 +146,13 @@
                 <Button
                     x:Name="PreviousButton"
                     Grid.Column="0"
+                    Command="{x:Bind viewModel.PreviousButtonCommand}"
                     Content="Previous" />
                 <Button
                     x:Name="NextButton"
                     Grid.Column="3"
-                    Content="Next"
-                    IsEnabled="{x:Bind viewModel.NextButtonIsEnable, Mode=OneWay}" />
+                    Command="{x:Bind viewModel.NextButtonCommand}"
+                    Content="Next" />
             </Grid>
         </Grid>
     </Grid>
