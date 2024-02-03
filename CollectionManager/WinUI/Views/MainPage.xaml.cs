@@ -36,6 +36,15 @@ namespace CollectionManager.WinUI.Views
         private void MainPage_Loading(FrameworkElement sender, object args)
         {
             viewModel.Init();
-        }        
+        }
+
+        private async void AutoSuggestBox_TextChanged(AutoSuggestBox sender, AutoSuggestBoxTextChangedEventArgs args)
+        {
+            if (args.Reason == AutoSuggestionBoxTextChangeReason.UserInput)
+            {
+                var result = await viewModel.GetSearchSuggestion(sender.Text);
+                sender.ItemsSource = result.ToList();
+            }
+        }
     }
 }

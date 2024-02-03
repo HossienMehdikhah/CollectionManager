@@ -60,6 +60,13 @@ public class MainpageViewModel : ObservableObject
     {
         await FetchPostsAndShowFirstItem();
     }
+    public async Task<IEnumerable<string>> GetSearchSuggestion(string searchTerm)
+    {
+        return await siteManager.GetSearchSuggestion(searchTerm);
+    }
+
+
+    #region Command
     private async Task NextButtonEvent()
     {
         if (gamePageListIndex + 2 <= gamePageList.Count)
@@ -88,6 +95,8 @@ public class MainpageViewModel : ObservableObject
             CurrentPage = gamePageList[--gamePageListIndex];
         }
     }
+    #endregion
+
 
     private async Task FetchPostsAndShowFirstItem()
     {

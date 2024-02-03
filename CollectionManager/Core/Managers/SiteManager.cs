@@ -1,6 +1,7 @@
 ﻿using CollectionManager.Core.Contracts.Services;
 using CollectionManager.Core.Models;
 using Microsoft.Extensions.Options;
+using System.Collections;
 namespace CollectionManager.Core.Managers;
 
 public class SiteManager(IGameSiteCrawler _gameSiteCrawler, IOptions<CollectionManagerOption> option)
@@ -18,31 +19,13 @@ public class SiteManager(IGameSiteCrawler _gameSiteCrawler, IOptions<CollectionM
         //DefineGameType(gamePage); 
     }
 
-    //public async Task<GamePageDto?> GetGameLink(string gameName)
-    //{
-    //    try
-    //    {
-    //        var searchQuery = new Uri(string.Format(SiteSearchUrl, gameName).Replace(" ", "+"));
-    //        HtmlWeb htmlWeb = new();
-    //        var htmlDocument = await htmlWeb.LoadFromWebAsync(searchQuery.ToString());
+    public Task<IEnumerable<string>> GetSearchSuggestion(string query)
+    {
+        return _gameSiteCrawler.GetSearchSuggestionAsync(query);
+    }
 
 
-    //        var gamePageList = _gameSiteCrawler.GetGamePageLink(htmlDocument);
-    //        var result = gamePageList.FirstOrDefault(x => Regex.IsMatch(x.Name, $"\\b{gameName}\\b", RegexOptions.IgnoreCase));
-    //        if (result != null)
-    //        {
-    //            var game = _context.GameSet!.FirstOrDefault(x => x.Name == gameName);
-    //            if (game != null)
-    //                result.MarkedType = game.MarkedType;
-    //        }
-    //        return result;
-    //    }
-    //    catch (Exception ex)
-    //    {
-    //        _logger.LogDebug($"Message:{ex.Message}\nGameName:{gameName}\nStack:{ex.StackTrace}");
-    //        return null;
-    //    }
-    //}
+    
     //private void FilterMarkedGame(ref IEnumerable<GamePageDto> gamePages)
     //{
     //    var sawGameList = _context.Set<GameSet>().AsQueryable();

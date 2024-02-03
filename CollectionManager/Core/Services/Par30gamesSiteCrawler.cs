@@ -4,50 +4,63 @@ using CollectionManager.Core.Contracts.Services;
 using CollectionManager.Core.Factories;
 using CollectionManager.Core.Models;
 using Flurl.Http;
+using System.Globalization;
 
 namespace CollectionManager.Core.Services;
 public class Par30gamesSiteCrawler(AngleSharpFactory _angleSharpFactory) : IGameSiteCrawler
 {
-    private const string baseUrl = "https://par30games.net/pc/page/{0}/";
+    private const string baseUrl = "https://par30games.net/";
+    private const string feedUrl = baseUrl + "pc/page/{0}/";
+    private const string seachUrl = baseUrl + "/page/1/?s=دانلود+{0}+pc";
     private const byte maxPostPerPage = 8;
 
     public async IAsyncEnumerable<GamePageDTO> GetFeedAsync(uint skipPostCount, uint takePostCount)
     {
         IBrowsingContext context = _angleSharpFactory.CreateDefualt();
         var skipPage = skipPostCount / maxPostPerPage;
-        var uri = string.Format(baseUrl, ++skipPage);
-        var htmlDocument = await uri.GetStringAsync();
-        var document = await context.OpenAsync(x => x.Content(htmlDocument));
-        await foreach (var item in GetGamePagesLinkAsync(document))
+        var uri = string.Format(feedUrl, ++skipPage);
+        var stringDocument = await uri.GetStringAsync();
+        var document = await context.OpenAsync(x => x.Content(stringDocument));
+        var Articles = GetArticles(document);
+        await foreach (var item in GetGamePagesLinkAsync(Articles.ToArray()))
         {
             yield return item;
         }
     }
-
-
-    public async IAsyncEnumerable<GamePageDTO> GetGamePagesLinkAsync(IDocument htmlDocument)
+    public async Task<IEnumerable<string>> GetSearchSuggestionAsync(string query)
     {
-        var Articles = htmlDocument.QuerySelectorAll(".post.icon-steam");
-        if (Articles.Length == 0) throw new Exception("HTML has not Any GamePageLink");
         IBrowsingContext context = _angleSharpFactory.CreateDefualt();
+        var uri = string.Format(seachUrl, query);
+        var htmlDocument = await uri.GetStringAsync();
+        var document = await context.OpenAsync(x => x.Content(htmlDocument));
+        var Articles = GetArticles(document).Select(GetNormalizeName);
+        return Articles;
+    }
 
-        foreach (var Article in Articles)
+    private IEnumerable<Uri> GetArticles(IDocument document)
+    {
+        var Articles = document.QuerySelectorAll(".post.icon-steam")?.Select(x => GetUri(x));
+        if (!Articles.Any()) throw new Exception("HTML has not Any GamePageLink");
+        return Articles;
+    }
+    private async IAsyncEnumerable<GamePageDTO> GetGamePagesLinkAsync(params Uri[] uriArticles)
+    {
+        IBrowsingContext context = _angleSharpFactory.CreateDefualt();
+        foreach (var uri in uriArticles)
         {
-            var url = GetUrl(Article);
-            var pageContentHtml = await url.GetStringAsync();
+            var pageContentHtml = await uri.GetStringAsync();
             var document = await context.OpenAsync(x => x.Content(pageContentHtml));
 
             GamePageDTO gamePage = new()
             {
-                Name = GameNameNormalize(url.ToString()),
-                URL = url,
-                PublishDate = GetDateTime(Article),
+                Name = GetNormalizeName(uri),
+                URL = uri,
+                PublishDate = GetDateTime(document),
                 Content = GetGameContentAsync(document),
             };
             yield return gamePage;
         }
     }
-
     private GamePageContentDTO GetGameContentAsync(IDocument htmlDocument)
     {
         return new GamePageContentDTO()
@@ -66,20 +79,22 @@ public class Par30gamesSiteCrawler(AngleSharpFactory _angleSharpFactory) : IGame
         temp = temp.Take(temp.Count() - 4);
         return string.Join("\\n", temp);
     }
-    private Uri GetUrl(IElement node)
+    private Uri GetUri(IElement node)
     {
         var hrefElement = node.QuerySelector("header h2 a");
         return new Uri(System.Web.HttpUtility.UrlDecode(hrefElement.Attributes["href"].Value));
     }
-    private DateOnly GetDateTime(IElement node)
+    private DateOnly GetDateTime(IDocument node)
     {
-        var clockNode = node.QuerySelectorAll("ul li").First(x => x.TextContent.Contains("تاریخ انتشار"));
-        var stringDatetime = clockNode.TextContent.Split(':')[1];
-        return DateOnly.Parse(stringDatetime);
+        var clockNode = node.QuerySelector(".icon-days").NextSibling;
+        var stringDatetime = clockNode.TextContent.Split(' ').Select(x => x.Trim()).ToArray();
+        stringDatetime[1] = ConstContainer.PersianMonths.First(x => x.Key.Equals(stringDatetime[1])).Value.ToString();
+        var intDatetime = stringDatetime.Where(x => !string.IsNullOrEmpty(x)).Select(int.Parse).ToArray();
+        return new DateOnly(intDatetime[2], intDatetime[1], intDatetime[0], new PersianCalendar());
     }
-    private string GameNameNormalize(string url)
+    private string GetNormalizeName(Uri url)
     {
-        var urlSprated = url.Split('/');
+        var urlSprated = url.ToString().Split('/');
         var temp = urlSprated.ElementAt(urlSprated.Length - 2);
         temp = temp.Replace("download-", "");
         temp = temp.Replace("-for-pc", "");

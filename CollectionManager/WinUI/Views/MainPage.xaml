@@ -41,7 +41,8 @@
                     Grid.Column="1"
                     VerticalAlignment="Center"
                     PlaceholderText="Search..."
-                    QueryIcon="Find" />
+                    QueryIcon="Find"
+                    TextChanged="AutoSuggestBox_TextChanged" />
             </Grid>
             <Grid
                 Grid.Row="1"
