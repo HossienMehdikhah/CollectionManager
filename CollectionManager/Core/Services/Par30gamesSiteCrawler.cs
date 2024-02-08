@@ -4,6 +4,7 @@ using CollectionManager.Core.Contracts.Services;
 using CollectionManager.Core.Factories;
 using CollectionManager.Core.Models;
 using Flurl.Http;
+using Humanizer;
 using System.Globalization;
 
 namespace CollectionManager.Core.Services;
@@ -93,7 +94,7 @@ public class Par30gamesSiteCrawler(AngleSharpFactory _angleSharpFactory) : IGame
     {
         var temp = document.QuerySelector(".post-content")
             .QuerySelectorAll("p:not([attribute])")
-            .Select(x => x.InnerHtml)
+            .Select(x => x.TextContent)
             .Where(x => !string.IsNullOrEmpty(x));
         temp = temp.Take(temp.Count() - 4);
         return string.Join("\\n", temp);
@@ -118,7 +119,7 @@ public class Par30gamesSiteCrawler(AngleSharpFactory _angleSharpFactory) : IGame
         temp = temp.Replace("download-", "");
         temp = temp.Replace("-for-pc", "");
         temp = temp.Replace("-", " ");
-        return temp;
+        return temp.Humanize(LetterCasing.Title);
     }
     private Uri? GetGameCover(IDocument document)
     {
@@ -135,6 +136,4 @@ public class Par30gamesSiteCrawler(AngleSharpFactory _angleSharpFactory) : IGame
             .Select(x => x.Attributes["href"].Value);
         return imagesUrl.Select(x => new Uri(x));
     }
-
-   
 }
