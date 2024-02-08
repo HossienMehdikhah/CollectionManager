@@ -2,6 +2,7 @@
 using CollectionManager.Core.Factories;
 using CollectionManager.Core.Managers;
 using CollectionManager.Core.Services;
+using CollectionManager.WinUI.UserControls;
 using CollectionManager.WinUI.ViewModels;
 using CollectionManager.WinUI.Views;
 using Microsoft.Extensions.DependencyInjection;
@@ -13,6 +14,7 @@ internal class DIConfig
     public static IServiceCollection Config(IServiceCollection services)
     {
         Pages(services);
+        UserControls(services);
         ViewModels(services);
         Managers(services);
         Services(services);
@@ -23,10 +25,18 @@ internal class DIConfig
     private static void Pages(IServiceCollection services)
     {
         services.AddTransient<MainPage>();
+        services.AddTransient<SearchPage>();
+    }
+    private static void UserControls(IServiceCollection services)
+    {
+        services.AddTransient<ContentDisplayUserControl>();
     }
     private static void ViewModels(IServiceCollection services)
     {
         services.AddTransient<MainpageViewModel>();
+        services.AddTransient<ContentDisplayViewModel>();
+        services.AddTransient<MainWindowViewModel>();
+        services.AddTransient<SearchPageViewModel>();
     }
     private static void Managers(IServiceCollection services)
     {

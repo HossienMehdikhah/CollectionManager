@@ -8,5 +8,18 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:page="using:CollectionManager.WinUI.Views"
     mc:Ignorable="d">
-    <page:MainPage />
+    <NavigationView
+        x:Name="NavView"
+        Background="LightGray"
+        IsBackButtonVisible="Collapsed"
+        IsSettingsVisible="False"
+        Loaded="navView_Loaded"
+        PaneDisplayMode="Top"
+        SelectionChanged="NavView_SelectionChanged">
+        <NavigationView.MenuItems>
+            <NavigationViewItem Content="Feeds" Tag="MainPage" />
+            <NavigationViewItem Content="Search" Tag="SearchPage" />
+        </NavigationView.MenuItems>
+        <Frame x:Name="ContentFrame" Navigated="ContentFrame_Navigated" />
+    </NavigationView>
 </Window>

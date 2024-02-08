@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<UserControl
+    x:Class="CollectionManager.WinUI.UserControls.ContentDisplayUserControl"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:local="using:CollectionManager.WinUI.UserControls"
+    xmlns:localsys="using:System"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d">
+    <UserControl.Resources>
+        <SolidColorBrush x:Key="appBarButton" Color="Gray" />
+        <SolidColorBrush x:Key="appBarButtonForground" Color="Black" />
+    </UserControl.Resources>
+    <Grid
+        BorderBrush="Black"
+        BorderThickness="1"
+        CornerRadius="4">
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="auto" />
+                <RowDefinition Height="*" />
+            </Grid.RowDefinitions>
+            <StackPanel Grid.Row="0" Orientation="Horizontal">
+                <AppBarButton
+                    x:Name="UpdateButton"
+                    Background="{StaticResource appBarButton}"
+                    Foreground="{StaticResource appBarButtonForground}"
+                    Icon="Accept"
+                    Label="Update" />
+                <AppBarButton
+                    x:Name="EralyAccesButton"
+                    Background="{StaticResource appBarButton}"
+                    Foreground="{StaticResource appBarButtonForground}"
+                    Icon="Accept"
+                    Label="EralyAcces" />
+                <AppBarButton
+                    x:Name="SeenButton"
+                    Background="{StaticResource appBarButton}"
+                    Foreground="{StaticResource appBarButtonForground}"
+                    Icon="Accept"
+                    Label="Seen" />
+                <AppBarButton
+                    x:Name="MarkedButton"
+                    Background="{StaticResource appBarButton}"
+                    Foreground="{StaticResource appBarButtonForground}"
+                    Icon="Accept"
+                    Label="Marked" />
+                <AppBarButton
+                    x:Name="DownloadButton"
+                    Background="{StaticResource appBarButton}"
+                    Foreground="{StaticResource appBarButtonForground}"
+                    Icon="Accept"
+                    Label="Download" />
+            </StackPanel>
+            <Grid Grid.Row="1">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="auto" />
+                    <RowDefinition Height="*" />
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+                <TextBlock
+                    x:Name="TitleTextBlock"
+                    Grid.ColumnSpan="2"
+                    Margin="0,0,0,4"
+                    FontSize="25"
+                    Foreground="Black"
+                    Text="{x:Bind viewModel.CurrentPage.Name, Mode=OneWay}"
+                    TextAlignment="Center"
+                    TextWrapping="NoWrap" />
+                <FlipView
+                    Grid.Row="1"
+                    Margin="4,0,2,4"
+                    ItemsSource="{x:Bind viewModel.CurrentPage.Content.GalleryLink, Mode=OneWay}">
+                    <FlipView.ItemTemplate>
+                        <DataTemplate x:DataType="localsys:Uri">
+                            <Grid>
+                                <Image>
+                                    <Image.Source>
+                                        <BitmapImage UriSource="{Binding}" />
+                                    </Image.Source>
+                                </Image>
+                            </Grid>
+                        </DataTemplate>
+                    </FlipView.ItemTemplate>
+                </FlipView>
+                <ScrollViewer
+                    Grid.Row="1"
+                    Grid.Column="1"
+                    Margin="2,0,4,4"
+                    BorderBrush="Black"
+                    BorderThickness="1"
+                    CornerRadius="4">
+                    <StackPanel Margin="0,0,10,0">
+                        <TextBlock
+                            FlowDirection="RightToLeft"
+                            Foreground="Black"
+                            Text="{x:Bind viewModel.CurrentPage.Content.Summery, Mode=OneWay}"
+                            TextWrapping="Wrap" />
+                    </StackPanel>
+                </ScrollViewer>
+            </Grid>
+        </Grid>
+    </Grid>
+</UserControl>

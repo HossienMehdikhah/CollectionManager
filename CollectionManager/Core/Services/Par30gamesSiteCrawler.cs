@@ -27,20 +27,39 @@ public class Par30gamesSiteCrawler(AngleSharpFactory _angleSharpFactory) : IGame
             yield return item;
         }
     }
-    public async Task<IEnumerable<string>> GetSearchSuggestionAsync(string query)
+    public async Task<GamePageDTO> GetPageAsync(Uri uri)
+    {
+        GamePageDTO selectedPage = new();
+        CancellationToken cancellationToken = CancellationToken.None;
+        await foreach (var item in GetGamePagesLinkAsync(uri).WithCancellation(cancellationToken))
+        {
+            selectedPage = item;
+            cancellationToken = new CancellationToken(true);
+        }
+        return selectedPage;
+    }
+    public async Task<IEnumerable<GamePageDTO>> GetSearchSuggestionAsync(string query)
     {
         IBrowsingContext context = _angleSharpFactory.CreateDefualt();
         var uri = string.Format(seachUrl, query);
         var htmlDocument = await uri.GetStringAsync();
         var document = await context.OpenAsync(x => x.Content(htmlDocument));
-        var Articles = GetArticles(document).Select(GetNormalizeName);
+        var Articles = GetArticles(document).Select(uir=>
+        {
+            return new GamePageDTO
+            {
+                Name = GetNormalizeName(uir),
+                URL = uir,
+            };
+        });
         return Articles;
     }
+
 
     private IEnumerable<Uri> GetArticles(IDocument document)
     {
         var Articles = document.QuerySelectorAll(".post.icon-steam")?.Select(x => GetUri(x));
-        if (!Articles.Any()) throw new Exception("HTML has not Any GamePageLink");
+        //if (!Articles.Any()) throw new Exception("HTML has not Any GamePageLink");
         return Articles;
     }
     private async IAsyncEnumerable<GamePageDTO> GetGamePagesLinkAsync(params Uri[] uriArticles)
@@ -116,4 +135,6 @@ public class Par30gamesSiteCrawler(AngleSharpFactory _angleSharpFactory) : IGame
             .Select(x => x.Attributes["href"].Value);
         return imagesUrl.Select(x => new Uri(x));
     }
+
+   
 }

@@ -12,7 +12,6 @@ public class MainpageViewModel : ObservableObject
     private GamePageDTO currentPage = new();
     private bool progressRingIsActive = true;
     private Visibility progressRingVisibility = Visibility.Visible;
-    private bool nextButtonIsEnable = false;
     #endregion
 
     private readonly List<GamePageDTO> gamePageList = [];
@@ -60,10 +59,7 @@ public class MainpageViewModel : ObservableObject
     {
         await FetchPostsAndShowFirstItem();
     }
-    public async Task<IEnumerable<string>> GetSearchSuggestion(string searchTerm)
-    {
-        return await siteManager.GetSearchSuggestion(searchTerm);
-    }
+    
 
 
     #region Command
@@ -84,13 +80,13 @@ public class MainpageViewModel : ObservableObject
         }
         else
         {
-            if(!isBackgroundWorkerRunning)
+            if (!isBackgroundWorkerRunning)
                 await FetchPostsAndShowFirstItem();
         }
     }
     private void PreviousButtonEvent()
     {
-        if(gamePageListIndex >=0)
+        if (gamePageListIndex >= 0)
         {
             CurrentPage = gamePageList[--gamePageListIndex];
         }

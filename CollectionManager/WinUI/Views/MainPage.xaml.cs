@@ -1,4 +1,6 @@
+using CollectionManager.WinUI.UserControls;
 using CollectionManager.WinUI.ViewModels;
+using CommunityToolkit.Mvvm.Input;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Controls.Primitives;
@@ -26,25 +28,14 @@ namespace CollectionManager.WinUI.Views
     public sealed partial class MainPage : Page
     {
         private readonly MainpageViewModel viewModel;
-
         public MainPage()
         {
-            this.InitializeComponent();
             viewModel = App.GetServices<MainpageViewModel>();
+            this.InitializeComponent();
         }
-
         private void MainPage_Loading(FrameworkElement sender, object args)
         {
             viewModel.Init();
-        }
-
-        private async void AutoSuggestBox_TextChanged(AutoSuggestBox sender, AutoSuggestBoxTextChangedEventArgs args)
-        {
-            if (args.Reason == AutoSuggestionBoxTextChangeReason.UserInput)
-            {
-                var result = await viewModel.GetSearchSuggestion(sender.Text);
-                sender.ItemsSource = result.ToList();
-            }
         }
     }
 }

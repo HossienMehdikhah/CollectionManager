@@ -19,9 +19,14 @@ public class SiteManager(IGameSiteCrawler _gameSiteCrawler, IOptions<CollectionM
         //DefineGameType(gamePage); 
     }
 
-    public Task<IEnumerable<string>> GetSearchSuggestion(string query)
+    public Task<IEnumerable<GamePageDTO>> GetSearchSuggestion(string query)
     {
         return _gameSiteCrawler.GetSearchSuggestionAsync(query);
+    }
+
+    public async Task<GamePageDTO> GetSpecificationPageAsync(Uri pageUri)
+    {
+        return await _gameSiteCrawler.GetPageAsync(pageUri);
     }
 
 
