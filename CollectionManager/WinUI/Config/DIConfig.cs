@@ -1,10 +1,13 @@
-﻿using CollectionManager.Core.Contracts.Services;
+﻿using CollectionManager.Core;
+using CollectionManager.Core.Contracts.Services;
 using CollectionManager.Core.Factories;
 using CollectionManager.Core.Managers;
 using CollectionManager.Core.Services;
+using CollectionManager.Core.Utilities;
 using CollectionManager.WinUI.UserControls;
 using CollectionManager.WinUI.ViewModels;
 using CollectionManager.WinUI.Views;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using WinUI;
 namespace CollectionManager.WinUI.Config;
@@ -45,5 +48,6 @@ internal class DIConfig
     private static void Services(IServiceCollection services)
     {
         services.AddTransient<IGameSiteCrawler, Par30gamesSiteCrawler>();
+        services.AddDbContext<Context>(x=>x.UseSqlite(PathHelper.GetSqliteDatabaseConnectionString));
     }
 }
