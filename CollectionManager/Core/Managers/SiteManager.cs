@@ -1,7 +1,6 @@
 ﻿using CollectionManager.Core.Contracts.Services;
 using CollectionManager.Core.Models;
 using Microsoft.Extensions.Options;
-using System.Collections;
 namespace CollectionManager.Core.Managers;
 
 public class SiteManager(IGameSiteCrawler _gameSiteCrawler, IOptions<CollectionManagerOption> option)
