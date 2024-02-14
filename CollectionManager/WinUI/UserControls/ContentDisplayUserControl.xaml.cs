@@ -2,25 +2,20 @@ using Microsoft.UI.Xaml.Controls;
 using CollectionManager.WinUI.ViewModels;
 using WinUI;
 using CollectionManager.Core.Models;
+namespace CollectionManager.WinUI.UserControls;
 
-// To learn more about WinUI, the WinUI project structure,
-// and more about our project templates, see: http://aka.ms/winui-project-info.
-
-namespace CollectionManager.WinUI.UserControls
+public sealed partial class ContentDisplayUserControl : UserControl
 {
-    public sealed partial class ContentDisplayUserControl : UserControl
+    private ContentDisplayViewModel ViewModel { get => (ContentDisplayViewModel)DataContext; }
+    public ContentDisplayUserControl()
     {
-        private ContentDisplayViewModel viewModel;
-        public ContentDisplayUserControl()
-        {
-            viewModel = App.GetServices<ContentDisplayViewModel>();
-            this.InitializeComponent();
-        }
+        DataContext = App.GetServices<ContentDisplayViewModel>();
+        this.InitializeComponent();
+    }
 
-        public GamePageDTO CurrentPage
-        {
-            get => viewModel.CurrentPage;
-            set => viewModel.CurrentPage = value;
-        }
+    public GamePageDTO CurrentPage
+    {
+        get => ViewModel.CurrentPage;
+        set => ViewModel.CurrentPage = value;
     }
 }

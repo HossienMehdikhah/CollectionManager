@@ -16,6 +16,6 @@ public static class ConstContainer
         {"آذر",9 },
         {"دی",10 },
         {"بهمن",11 },
-        {"اسنفند",12 },
+        {"اسفند",12 },
     }.ToFrozenDictionary();
 }

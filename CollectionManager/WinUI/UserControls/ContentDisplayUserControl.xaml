@@ -3,7 +3,9 @@
     x:Class="CollectionManager.WinUI.UserControls.ContentDisplayUserControl"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:core="using:Microsoft.Xaml.Interactions.Core"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:interactivity="using:Microsoft.Xaml.Interactivity"
     xmlns:local="using:CollectionManager.WinUI.UserControls"
     xmlns:localsys="using:System"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
@@ -21,38 +23,39 @@
                 <RowDefinition Height="auto" />
                 <RowDefinition Height="*" />
             </Grid.RowDefinitions>
-            <StackPanel Grid.Row="0" Orientation="Horizontal">
-                <AppBarButton
-                    x:Name="UpdateButton"
-                    Background="{StaticResource appBarButton}"
-                    Foreground="{StaticResource appBarButtonForground}"
-                    Icon="Accept"
-                    Label="Update" />
-                <AppBarButton
-                    x:Name="EralyAccesButton"
-                    Background="{StaticResource appBarButton}"
-                    Foreground="{StaticResource appBarButtonForground}"
-                    Icon="Accept"
-                    Label="EralyAcces" />
-                <AppBarButton
-                    x:Name="SeenButton"
-                    Background="{StaticResource appBarButton}"
-                    Foreground="{StaticResource appBarButtonForground}"
-                    Icon="Accept"
-                    Label="Seen" />
-                <AppBarButton
-                    x:Name="MarkedButton"
-                    Background="{StaticResource appBarButton}"
-                    Foreground="{StaticResource appBarButtonForground}"
-                    Icon="Accept"
-                    Label="Marked" />
-                <AppBarButton
-                    x:Name="DownloadButton"
-                    Background="{StaticResource appBarButton}"
-                    Foreground="{StaticResource appBarButtonForground}"
-                    Icon="Accept"
-                    Label="Download" />
-            </StackPanel>
+            <CommandBar
+                Grid.Row="0"
+                DefaultLabelPosition="Right"
+                IsOpen="False">
+                <AppBarToggleButton IsChecked="{x:Bind ViewModel.IsUpdateButtonChecked, Mode=TwoWay}" Label="Update">
+                    <interactivity:Interaction.Behaviors>
+                        <core:EventTriggerBehavior EventName="Click">
+                            <core:InvokeCommandAction Command="{x:Bind ViewModel.AddToUpdateCollectionCommand}" />
+                        </core:EventTriggerBehavior>
+                    </interactivity:Interaction.Behaviors>
+                </AppBarToggleButton>
+                <AppBarToggleButton IsChecked="{x:Bind ViewModel.IsMarkedButtonChecked, Mode=TwoWay}" Label="Marked">
+                    <interactivity:Interaction.Behaviors>
+                        <core:EventTriggerBehavior EventName="Click">
+                            <core:InvokeCommandAction Command="{x:Bind ViewModel.AddToMarkedCollectionCommand}" />
+                        </core:EventTriggerBehavior>
+                    </interactivity:Interaction.Behaviors>
+                </AppBarToggleButton>
+                <AppBarToggleButton IsChecked="{x:Bind ViewModel.IsSeenButtonChecked, Mode=TwoWay}" Label="Seen">
+                    <interactivity:Interaction.Behaviors>
+                        <core:EventTriggerBehavior EventName="Click">
+                            <core:InvokeCommandAction Command="{x:Bind ViewModel.AddToSeenCollectionCommand}" />
+                        </core:EventTriggerBehavior>
+                    </interactivity:Interaction.Behaviors>
+                </AppBarToggleButton>
+                <AppBarToggleButton IsChecked="{x:Bind ViewModel.IsEralyAccesButtonChecked, Mode=TwoWay}" Label="EralyAcces">
+                    <interactivity:Interaction.Behaviors>
+                        <core:EventTriggerBehavior EventName="Click">
+                            <core:InvokeCommandAction Command="{x:Bind ViewModel.AddToEarlyAccessCollectionCommand}" />
+                        </core:EventTriggerBehavior>
+                    </interactivity:Interaction.Behaviors>
+                </AppBarToggleButton>
+            </CommandBar>
             <Grid Grid.Row="1">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="auto" />
@@ -68,13 +71,13 @@
                     Margin="0,0,0,4"
                     FontSize="25"
                     Foreground="Black"
-                    Text="{x:Bind viewModel.CurrentPage.Name, Mode=OneWay}"
+                    Text="{x:Bind ViewModel.CurrentPage.Name, Mode=OneWay}"
                     TextAlignment="Center"
                     TextWrapping="NoWrap" />
                 <FlipView
                     Grid.Row="1"
                     Margin="4,0,2,4"
-                    ItemsSource="{x:Bind viewModel.CurrentPage.Content.GalleryLink, Mode=OneWay}">
+                    ItemsSource="{x:Bind ViewModel.CurrentPage.Content.GalleryLink, Mode=OneWay}">
                     <FlipView.ItemTemplate>
                         <DataTemplate x:DataType="localsys:Uri">
                             <Grid>
@@ -98,7 +101,7 @@
                         <TextBlock
                             FlowDirection="RightToLeft"
                             Foreground="Black"
-                            Text="{x:Bind viewModel.CurrentPage.Content.Summery, Mode=OneWay}"
+                            Text="{x:Bind ViewModel.CurrentPage.Content.Summery, Mode=OneWay}"
                             TextWrapping="Wrap" />
                     </StackPanel>
                 </ScrollViewer>

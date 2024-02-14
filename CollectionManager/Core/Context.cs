@@ -16,6 +16,11 @@ public class Context : DbContext
         {
             x.Property(x => x.Id)
             .ValueGeneratedOnAdd();
+            x.Property(x => x.Name)
+            .IsRequired();
+            x.Property(x => x.Uri)
+            .IsRequired();
+           
         });
     }
 

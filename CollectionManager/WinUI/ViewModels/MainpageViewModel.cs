@@ -58,6 +58,7 @@ public class MainpageViewModel : ObservableObject
     public async Task Init()
     {
         await FetchPostsAndShowFirstItem();
+        //DeactivateLoading();
     }
     
 

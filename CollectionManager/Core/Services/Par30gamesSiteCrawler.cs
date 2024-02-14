@@ -116,9 +116,11 @@ public class Par30gamesSiteCrawler(AngleSharpFactory _angleSharpFactory) : IGame
     {
         var urlSprated = url.ToString().Split('/');
         var temp = urlSprated.ElementAt(urlSprated.Length - 2);
-        temp = temp.Replace("download-", "");
-        temp = temp.Replace("-for-pc", "");
         temp = temp.Replace("-", " ");
+        temp = temp.Replace("download", "");
+        temp = temp.Replace("game", "");
+        temp = temp.Replace("for", "");
+        temp = temp.Replace("pc", "");
         return temp.Humanize(LetterCasing.Title);
     }
     private Uri? GetGameCover(IDocument document)
