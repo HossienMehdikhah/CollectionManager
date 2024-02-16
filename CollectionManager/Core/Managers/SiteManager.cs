@@ -40,21 +40,25 @@ public class SiteManager(IGameSiteCrawler _gameSiteCrawler, IOptions<CollectionM
     {
         await AddToCollection(gamePageDTO, MarkedType.Update);
         await context.SaveChangesAsync();
+        gamePageDTO.MarkedType = MarkedType.Update;
     }
     public async Task AddToMarkCollection(GamePageDTO gamePageDTO)
     {
         await AddToCollection(gamePageDTO, MarkedType.Marked);
         await context.SaveChangesAsync();
+        gamePageDTO.MarkedType = MarkedType.Marked;
     }
     public async Task AddToSeenCollection(GamePageDTO gamePageDTO)
     {
         await AddToCollection(gamePageDTO, MarkedType.Seen);
         await context.SaveChangesAsync();
+        gamePageDTO.MarkedType = MarkedType.Seen;
     }
     public async Task AddToEarlyAccessCollection(GamePageDTO gamePageDTO)
     {
         await AddToCollection(gamePageDTO, MarkedType.EarlyAccess);
         await context.SaveChangesAsync();
+        gamePageDTO.MarkedType = MarkedType.EarlyAccess;
     }
 
 

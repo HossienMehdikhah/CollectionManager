@@ -1,4 +1,5 @@
-﻿using CollectionManager.Core.Managers;
+﻿using CollectionManager.Core;
+using CollectionManager.Core.Managers;
 using CollectionManager.Core.Models;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
@@ -7,7 +8,7 @@ namespace CollectionManager.WinUI.ViewModels;
 
 public partial class ContentDisplayViewModel(SiteManager siteManager) : ObservableObject
 {
-    private GamePageDTO currentPage;
+    private GamePageDTO currentPage = new();
     public GamePageDTO CurrentPage
     {
         get
@@ -82,6 +83,18 @@ public partial class ContentDisplayViewModel(SiteManager siteManager) : Observab
         IsCheckedAll(false);
         IsEralyAccesButtonChecked = true;
     }
+    [RelayCommand]
+    private async Task ShowImageAsBiggerSize(string selectedImageUri)
+    {
+        await ShowBiggerImage.Invoke(new Uri(selectedImageUri));
+    }
+    [RelayCommand]
+    private async Task Download()
+    {
+        //Broker.AddToIDMDownLoadList();
+    }
+
+    public Func<Uri, Task> ShowBiggerImage { get; set; } = async (uri) => await Task.CompletedTask;
 
 
 

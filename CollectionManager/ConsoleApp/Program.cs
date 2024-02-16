@@ -1,9 +1,4 @@
-﻿using CollectionManager.Core;
-using CollectionManager.Core.Managers;
-using CollectionManager.Core.Services;
-using Flurl.Http;
-using Microsoft.EntityFrameworkCore;
-using System.Diagnostics;
+﻿using CollectionManager.Core.Services;
 
 namespace ConsoleApp;
 
@@ -11,6 +6,13 @@ public class Program
 {
     public static void Main(string[] args)
     {
-        var temp = AppDomain.CurrentDomain;
+        test().Wait();
+    }
+
+    private static async Task test()
+    {
+        var uri = new Uri("https://par30games.net/227066/download-lies-of-p-for-pc/");
+        Par30gamesSiteCrawler par = new();
+        var temp = await par.GetPageAsync(uri);
     }
 }

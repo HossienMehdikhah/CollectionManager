@@ -1,14 +1,19 @@
 ﻿using AngleSharp;
+using AngleSharp.Common;
 using AngleSharp.Dom;
 using CollectionManager.Core.Contracts.Services;
 using CollectionManager.Core.Factories;
 using CollectionManager.Core.Models;
+using CollectionManager.Core.Utilities;
 using Flurl.Http;
 using Humanizer;
+using System.Collections;
 using System.Globalization;
+using System.Reflection.Metadata;
+using System.Xml.Linq;
 
 namespace CollectionManager.Core.Services;
-public class Par30gamesSiteCrawler(AngleSharpFactory _angleSharpFactory) : IGameSiteCrawler
+public class Par30gamesSiteCrawler() : IGameSiteCrawler
 {
     private const string baseUrl = "https://par30games.net/";
     private const string feedUrl = baseUrl + "pc/page/{0}/";
@@ -17,7 +22,7 @@ public class Par30gamesSiteCrawler(AngleSharpFactory _angleSharpFactory) : IGame
 
     public async IAsyncEnumerable<GamePageDTO> GetFeedAsync(uint skipPostCount, uint takePostCount)
     {
-        IBrowsingContext context = _angleSharpFactory.CreateDefualt();
+        IBrowsingContext context = AngleSharpFactory.CreateDefault();
         var skipPage = skipPostCount / maxPostPerPage;
         var uri = string.Format(feedUrl, ++skipPage);
         var stringDocument = await uri.GetStringAsync();
@@ -41,11 +46,11 @@ public class Par30gamesSiteCrawler(AngleSharpFactory _angleSharpFactory) : IGame
     }
     public async Task<IEnumerable<GamePageDTO>> GetSearchSuggestionAsync(string query)
     {
-        IBrowsingContext context = _angleSharpFactory.CreateDefualt();
+        IBrowsingContext context = AngleSharpFactory.CreateDefault();
         var uri = string.Format(seachUrl, query);
         var htmlDocument = await uri.GetStringAsync();
         var document = await context.OpenAsync(x => x.Content(htmlDocument));
-        var Articles = GetArticles(document).Select(uir=>
+        var Articles = GetArticles(document).Select(uir =>
         {
             return new GamePageDTO
             {
@@ -60,12 +65,11 @@ public class Par30gamesSiteCrawler(AngleSharpFactory _angleSharpFactory) : IGame
     private IEnumerable<Uri> GetArticles(IDocument document)
     {
         var Articles = document.QuerySelectorAll(".post.icon-steam")?.Select(x => GetUri(x));
-        //if (!Articles.Any()) throw new Exception("HTML has not Any GamePageLink");
         return Articles;
     }
     private async IAsyncEnumerable<GamePageDTO> GetGamePagesLinkAsync(params Uri[] uriArticles)
     {
-        IBrowsingContext context = _angleSharpFactory.CreateDefualt();
+        IBrowsingContext context = AngleSharpFactory.CreateDefault();
         foreach (var uri in uriArticles)
         {
             var pageContentHtml = await uri.GetStringAsync();
@@ -88,6 +92,7 @@ public class Par30gamesSiteCrawler(AngleSharpFactory _angleSharpFactory) : IGame
             CoverLink = GetGameCover(htmlDocument),
             Summery = GetSummery(htmlDocument),
             GalleryLink = GetGalleryLink(htmlDocument),
+            DownloadLink = GetDownloadLink(htmlDocument)
         };
     }
     private string GetSummery(IDocument document)
@@ -137,5 +142,60 @@ public class Par30gamesSiteCrawler(AngleSharpFactory _angleSharpFactory) : IGame
             .QuerySelectorAll("div.gallery-icon.landscape > a")
             .Select(x => x.Attributes["href"].Value);
         return imagesUrl.Select(x => new Uri(x));
+    }
+    private IEnumerable<EncoderTeamDto> GetDownloadLink(IDocument htmlDocument)
+    {
+        var temp = htmlDocument.QuerySelectorAll(".buttondl");
+        var temp1 = htmlDocument.QuerySelectorAll(".buttondl-tab .tab-content div > ul");
+
+        List<EncoderTeamDto> encoderTeams = [];
+        for (int i = 0; i < temp.Length; i++)
+        {
+            var item = temp[i];
+            EncoderTeamDto newEncoder = new()
+            {
+                EncoderName = GetEncoderTeamName(item),
+                TotalValue = GetTotalValue(item),
+                DownloadLinks = GetDownloadAndUpdateLinks(temp1[i]),
+            };
+            encoderTeams.Add(newEncoder);
+        }
+        return encoderTeams;
+    }
+    private IDictionary<string, IEnumerable<Uri>> GetDownloadAndUpdateLinks(IElement div)
+    {
+        Dictionary<string, IEnumerable<Uri>> dic = [];
+        List<Uri> links = [];
+        string lastNode = string.Empty;
+        foreach (var item in div.Children)
+        {
+            if (item.NodeName.Equals("B"))
+            {
+                if (lastNode != string.Empty)
+                {
+                    dic.Add(lastNode, links);
+                    links = [];
+                }
+                lastNode = RegexHelper.TakeBetweenQuote(item.OuterHtml);
+            }
+            else links.Add(new Uri(item.Children[0].Attributes["href"].Value));
+        }
+        dic.Add(lastNode, links);
+        return dic;
+    }
+    private string GetEncoderTeamName(IElement document)
+    {
+        var text = RegexHelper.RemoveWhiteSpace(document.TextContent);
+        var encoderName = text.Replace(document.Children[1].InnerHtml, "").Trim();
+        return encoderName;
+    }
+    private string GetTotalValue(IElement document)
+    {
+        var value = RegexHelper.TakeNumber(document.TextContent);
+        if (document.TextContent.Contains("گیگابایت"))
+            value += " GB";
+        else if (document.TextContent.Contains("مگابایت"))
+            value += " MB";
+        return value;
     }
 }

@@ -9,6 +9,7 @@
     xmlns:local="using:CollectionManager.WinUI.UserControls"
     xmlns:localsys="using:System"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    x:Name="ContentDisplayUserControlxml"
     mc:Ignorable="d">
     <UserControl.Resources>
         <SolidColorBrush x:Key="appBarButton" Color="Gray" />
@@ -18,6 +19,12 @@
         BorderBrush="Black"
         BorderThickness="1"
         CornerRadius="4">
+        <ContentDialog
+            x:Name="BiggerImageDialog"
+            CloseButtonText="Close"
+            FullSizeDesired="True">
+            <Image x:Name="BiggerImageDialogimge" Stretch="Fill" />
+        </ContentDialog>
         <Grid>
             <Grid.RowDefinitions>
                 <RowDefinition Height="auto" />
@@ -55,6 +62,14 @@
                         </core:EventTriggerBehavior>
                     </interactivity:Interaction.Behaviors>
                 </AppBarToggleButton>
+                <AppBarSeparator/>
+                <AppBarButton Label="test">
+                    <interactivity:Interaction.Behaviors>
+                        <core:EventTriggerBehavior EventName="Click">
+                            <core:InvokeCommandAction Command="{x:Bind ViewModel.AddToEarlyAccessCollectionCommand}" />
+                        </core:EventTriggerBehavior>
+                    </interactivity:Interaction.Behaviors>
+                </AppBarButton>
             </CommandBar>
             <Grid Grid.Row="1">
                 <Grid.RowDefinitions>
@@ -75,12 +90,18 @@
                     TextAlignment="Center"
                     TextWrapping="NoWrap" />
                 <FlipView
+                    x:Name="filipView"
                     Grid.Row="1"
                     Margin="4,0,2,4"
                     ItemsSource="{x:Bind ViewModel.CurrentPage.Content.GalleryLink, Mode=OneWay}">
                     <FlipView.ItemTemplate>
                         <DataTemplate x:DataType="localsys:Uri">
-                            <Grid>
+                            <Grid Background="Transparent">
+                                <interactivity:Interaction.Behaviors>
+                                    <core:EventTriggerBehavior EventName="Tapped">
+                                        <core:InvokeCommandAction Command="{Binding ElementName=ContentDisplayUserControlxml, Path=ViewModel.ShowImageAsBiggerSizeCommand}" CommandParameter="{Binding}" />
+                                    </core:EventTriggerBehavior>
+                                </interactivity:Interaction.Behaviors>
                                 <Image>
                                     <Image.Source>
                                         <BitmapImage UriSource="{Binding}" />

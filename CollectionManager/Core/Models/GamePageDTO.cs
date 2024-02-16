@@ -7,5 +7,4 @@ public class GamePageDTO
     public DateOnly PublishDate { get; set; }
     public MarkedType MarkedType { get; set; }
     public GamePageContentDTO Content { get; set; } = new();
-    //public Image? Thumbnail { get; set; }
 }

@@ -22,5 +22,5 @@ public class GamePageContentDTO
         }
         set => galleryLink = value.ToList();
     }
-    public IDictionary<string, IEnumerable<Uri>>? DownloadLink { get; set; }
+    public IEnumerable<EncoderTeamDto> DownloadLink { get; set; } = new List<EncoderTeamDto>();
 }
