@@ -80,20 +80,13 @@ public class Par30gamesSiteCrawler() : IGameSiteCrawler
                 Name = GetNormalizeName(uri),
                 URL = uri,
                 PublishDate = GetDateTime(document),
-                Content = GetGameContentAsync(document),
+                CoverLink = GetGameCover(document),
+                Summery = GetSummery(document),
+                GalleryLink = GetGalleryLink(document),
+                DownloadLink = GetDownloadLink(document)
             };
             yield return gamePage;
         }
-    }
-    private GamePageContentDTO GetGameContentAsync(IDocument htmlDocument)
-    {
-        return new GamePageContentDTO()
-        {
-            CoverLink = GetGameCover(htmlDocument),
-            Summery = GetSummery(htmlDocument),
-            GalleryLink = GetGalleryLink(htmlDocument),
-            DownloadLink = GetDownloadLink(htmlDocument)
-        };
     }
     private string GetSummery(IDocument document)
     {
@@ -156,15 +149,15 @@ public class Par30gamesSiteCrawler() : IGameSiteCrawler
             {
                 EncoderName = GetEncoderTeamName(item),
                 TotalValue = GetTotalValue(item),
-                DownloadLinks = GetDownloadAndUpdateLinks(temp1[i]),
+                EncoderPackages = GetDownloadAndUpdateLinks(temp1[i]),
             };
             encoderTeams.Add(newEncoder);
         }
         return encoderTeams;
     }
-    private IDictionary<string, IEnumerable<Uri>> GetDownloadAndUpdateLinks(IElement div)
+    private IEnumerable<EncoderPackageDTO> GetDownloadAndUpdateLinks(IElement div)
     {
-        Dictionary<string, IEnumerable<Uri>> dic = [];
+        Dictionary<string, List<Uri>> dic = [];
         List<Uri> links = [];
         string lastNode = string.Empty;
         foreach (var item in div.Children)
@@ -181,7 +174,14 @@ public class Par30gamesSiteCrawler() : IGameSiteCrawler
             else links.Add(new Uri(item.Children[0].Attributes["href"].Value));
         }
         dic.Add(lastNode, links);
-        return dic;
+        return dic.Select(x=> new EncoderPackageDTO { 
+            EncoderPackageName = x.Key,
+            DownloadLink = x.Value.Select(y=>
+            {
+                uint counter = 1;
+                return new DownloadURIDTO { PartNumber = $"Part {counter}", Uri = y };
+            }),
+        });
     }
     private string GetEncoderTeamName(IElement document)
     {

@@ -9,6 +9,8 @@
     xmlns:local="using:CollectionManager.WinUI.UserControls"
     xmlns:localsys="using:System"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:models="using:CollectionManager.Core.Models"
+    xmlns:utilities="using:CollectionManager.Core.Utilities"
     x:Name="ContentDisplayUserControlxml"
     mc:Ignorable="d">
     <UserControl.Resources>
@@ -21,9 +23,51 @@
         CornerRadius="4">
         <ContentDialog
             x:Name="BiggerImageDialog"
+            HorizontalContentAlignment="Stretch"
             CloseButtonText="Close"
             FullSizeDesired="True">
             <Image x:Name="BiggerImageDialogimge" Stretch="Fill" />
+        </ContentDialog>
+        <ContentDialog
+            x:Name="DownloadEncoderSelectorDialog"
+            HorizontalContentAlignment="Stretch"
+            CloseButtonText="Close"
+            FullSizeDesired="True"
+            PrimaryButtonCommand="{x:Bind ViewModel.DownloadLinkSelectionConfirmCommand}"
+            PrimaryButtonCommandParameter="{Binding ElementName=showDownloadLink}"
+            PrimaryButtonText="Select">
+            <TreeView
+                x:Name="showDownloadLink"
+                Grid.Row="1"
+                SelectionMode="Multiple">
+                <interactivity:Interaction.Behaviors>
+                    <core:EventTriggerBehavior EventName="SelectionChanged">
+                        <core:InvokeCommandAction Command="{Binding ElementName=ContentDisplayUserControlxml, Path=ViewModel.TreeViewSelectionChangeCommand}" />
+                    </core:EventTriggerBehavior>
+                </interactivity:Interaction.Behaviors>
+                <TreeView.ItemTemplateSelector>
+                    <utilities:TreeViewTemplateSelector>
+                        <utilities:TreeViewTemplateSelector.EncoderTeamNameTemplate>
+                            <DataTemplate x:DataType="models:EncoderTeamDto">
+                                <TreeViewItem Content="{x:Bind EncoderName, Mode=OneWay}" ItemsSource="{x:Bind EncoderPackages}" />
+                            </DataTemplate>
+                        </utilities:TreeViewTemplateSelector.EncoderTeamNameTemplate>
+                        <utilities:TreeViewTemplateSelector.PackageNameTemplate>
+                            <DataTemplate x:DataType="models:EncoderPackageDTO">
+                                <TreeViewItem
+                                    Content="{x:Bind EncoderPackageName, Mode=OneWay}"
+                                    IsExpanded="True"
+                                    ItemsSource="{x:Bind DownloadLink}" />
+                            </DataTemplate>
+                        </utilities:TreeViewTemplateSelector.PackageNameTemplate>
+                        <utilities:TreeViewTemplateSelector.DownloadLinkTemplate>
+                            <DataTemplate x:DataType="models:DownloadURIDTO">
+                                <TreeViewItem Content="{x:Bind PartNumber}" />
+                            </DataTemplate>
+                        </utilities:TreeViewTemplateSelector.DownloadLinkTemplate>
+                    </utilities:TreeViewTemplateSelector>
+                </TreeView.ItemTemplateSelector>
+            </TreeView>
         </ContentDialog>
         <Grid>
             <Grid.RowDefinitions>
@@ -62,11 +106,11 @@
                         </core:EventTriggerBehavior>
                     </interactivity:Interaction.Behaviors>
                 </AppBarToggleButton>
-                <AppBarSeparator/>
-                <AppBarButton Label="test">
+                <AppBarSeparator />
+                <AppBarButton Label="Download">
                     <interactivity:Interaction.Behaviors>
                         <core:EventTriggerBehavior EventName="Click">
-                            <core:InvokeCommandAction Command="{x:Bind ViewModel.AddToEarlyAccessCollectionCommand}" />
+                            <core:InvokeCommandAction Command="{x:Bind ViewModel.ShowDownloadSelectorDialogCommand}" />
                         </core:EventTriggerBehavior>
                     </interactivity:Interaction.Behaviors>
                 </AppBarButton>
@@ -93,7 +137,7 @@
                     x:Name="filipView"
                     Grid.Row="1"
                     Margin="4,0,2,4"
-                    ItemsSource="{x:Bind ViewModel.CurrentPage.Content.GalleryLink, Mode=OneWay}">
+                    ItemsSource="{x:Bind ViewModel.CurrentPage.GalleryLink, Mode=OneWay}">
                     <FlipView.ItemTemplate>
                         <DataTemplate x:DataType="localsys:Uri">
                             <Grid Background="Transparent">
@@ -122,7 +166,7 @@
                         <TextBlock
                             FlowDirection="RightToLeft"
                             Foreground="Black"
-                            Text="{x:Bind ViewModel.CurrentPage.Content.Summery, Mode=OneWay}"
+                            Text="{x:Bind ViewModel.CurrentPage.Summery, Mode=OneWay}"
                             TextWrapping="Wrap" />
                     </StackPanel>
                 </ScrollViewer>

@@ -1,8 +1,8 @@
-﻿using CollectionManager.Core;
-using CollectionManager.Core.Managers;
+﻿using CollectionManager.Core.Managers;
 using CollectionManager.Core.Models;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using Microsoft.UI.Xaml.Controls;
 
 namespace CollectionManager.WinUI.ViewModels;
 
@@ -44,6 +44,8 @@ public partial class ContentDisplayViewModel(SiteManager siteManager) : Observab
             SetProperty(ref currentPage, value);
         }
     }
+
+
     [ObservableProperty]
     private bool isUpdateButtonChecked;
     [ObservableProperty]
@@ -52,6 +54,7 @@ public partial class ContentDisplayViewModel(SiteManager siteManager) : Observab
     private bool isSeenButtonChecked;
     [ObservableProperty]
     private bool isEralyAccesButtonChecked;
+
 
 
     [RelayCommand]
@@ -86,18 +89,45 @@ public partial class ContentDisplayViewModel(SiteManager siteManager) : Observab
     [RelayCommand]
     private async Task ShowImageAsBiggerSize(string selectedImageUri)
     {
-        await ShowBiggerImage.Invoke(new Uri(selectedImageUri));
+        await ShowImageAsBiggerSizeAction.Invoke(new Uri(selectedImageUri));
     }
     [RelayCommand]
-    private async Task Download()
+    private async Task ShowDownloadSelectorDialog()
     {
-        //Broker.AddToIDMDownLoadList();
+        await ShowDownloadSelectorAction.Invoke();
+    }
+    [RelayCommand]
+    private void TreeViewSelectionChange(TreeViewSelectionChangedEventArgs args)
+    {
+        TreeViewSelectionChangeAction.Invoke(args);
+    }
+    [RelayCommand]
+    private async Task DownloadLinkSelectionConfirm(TreeView item)
+    {
+        var temp = item.SelectedItems.Where(x => x is DownloadURIDTO).Cast<DownloadURIDTO>().Select(x=>x.Uri).ToList();
     }
 
-    public Func<Uri, Task> ShowBiggerImage { get; set; } = async (uri) => await Task.CompletedTask;
 
-
-
+    public Func<Uri, Task> ShowImageAsBiggerSizeAction { get; set; } = async (uri) => await Task.CompletedTask;
+    public Func<Task> ShowDownloadSelectorAction { get; set; }
+    public Func<Task> DownloadLinkSelectionConfirmAction { get; set; }
+    public Action<TreeViewSelectionChangedEventArgs> TreeViewSelectionChangeAction { get; set; }
+    public void ShowDownloadLink_SelectionChanged(TreeView sender, TreeViewSelectionChangedEventArgs args)
+    {
+        if (args.RemovedItems.Any())
+            sender.RootNodes.ToList().ForEach(x => x.IsExpanded = false);
+        else
+        {
+            var temp = sender.RootNodes.Where(x => !args.AddedItems.Where(y => y is EncoderTeamDto).Cast<EncoderTeamDto>().Any(y => ((EncoderTeamDto)x.Content).EncoderName.Equals(y.EncoderName)))
+                .ToList();
+            temp.ForEach(x => x.IsExpanded = false);
+            if (sender.SelectedItems.Where(x => x is EncoderTeamDto).Count() >= 2)
+                sender.SelectedNodes.RemoveAt(0);
+            var temp1 = sender.RootNodes
+                .First(x => ((EncoderTeamDto)x.Content).EncoderName.Equals(((EncoderTeamDto)args.AddedItems.First(y => y is EncoderTeamDto)).EncoderName));
+            temp1.IsExpanded = true;
+        }
+    }
     private void IsCheckedAll(bool isChecked)
     {
         IsUpdateButtonChecked = isChecked;

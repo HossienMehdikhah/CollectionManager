@@ -10,10 +10,23 @@ public sealed partial class ContentDisplayUserControl : UserControl
     public ContentDisplayUserControl()
     {
         DataContext = App.GetServices<ContentDisplayViewModel>();
-        ViewModel.ShowBiggerImage = async (Uri) =>
+        ViewModel.ShowImageAsBiggerSizeAction = async (Uri) =>
         {
             BiggerImageDialogimge.Source = new BitmapImage(Uri);
             await BiggerImageDialog.ShowAsync();
+        };
+        ViewModel.ShowDownloadSelectorAction = async () =>
+        {
+            showDownloadLink.ItemsSource = ViewModel.CurrentPage.DownloadLink;
+            await DownloadEncoderSelectorDialog.ShowAsync();
+        };
+        ViewModel.TreeViewSelectionChangeAction = (args) =>
+        {
+            ViewModel.ShowDownloadLink_SelectionChanged(showDownloadLink, args);
+        };
+        ViewModel.DownloadLinkSelectionConfirmAction = async () =>
+        {
+            showDownloadLink.SelectedItems.Where(x => x is DownloadURIDTO);
         };
         this.InitializeComponent();
     }
