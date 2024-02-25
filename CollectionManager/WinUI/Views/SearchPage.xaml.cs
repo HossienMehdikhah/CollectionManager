@@ -8,7 +8,7 @@ public sealed partial class SearchPage : Page
 {
     public SearchPage()
     {
-        DataContext = App.GetServices<SearchPageViewModel>();
+        DataContext = App.GetService<SearchPageViewModel>();
         this.InitializeComponent();
     }
     private SearchPageViewModel ViewModel { get => (SearchPageViewModel)DataContext; }

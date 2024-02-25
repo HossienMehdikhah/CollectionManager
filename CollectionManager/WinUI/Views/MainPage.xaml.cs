@@ -30,7 +30,7 @@ namespace CollectionManager.WinUI.Views
         private readonly MainpageViewModel viewModel;
         public MainPage()
         {
-            viewModel = App.GetServices<MainpageViewModel>();
+            viewModel = App.GetService<MainpageViewModel>();
             this.InitializeComponent();
         }
         private void MainPage_Loading(FrameworkElement sender, object args)

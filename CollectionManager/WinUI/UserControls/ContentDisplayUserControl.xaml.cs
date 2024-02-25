@@ -9,7 +9,7 @@ public sealed partial class ContentDisplayUserControl : UserControl
 {
     public ContentDisplayUserControl()
     {
-        DataContext = App.GetServices<ContentDisplayViewModel>();
+        DataContext = App.GetService<ContentDisplayViewModel>();
         ViewModel.ShowImageAsBiggerSizeAction = async (Uri) =>
         {
             BiggerImageDialogimge.Source = new BitmapImage(Uri);

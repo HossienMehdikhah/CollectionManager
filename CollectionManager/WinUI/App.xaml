@@ -8,16 +8,10 @@
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
                 <XamlControlsResources xmlns="using:Microsoft.UI.Xaml.Controls" />
-                <!--  Other merged dictionaries here  -->
+                <ResourceDictionary Source="/Styles/FontSizes.xaml" />
+                <ResourceDictionary Source="/Styles/Thickness.xaml" />
+                <ResourceDictionary Source="/Styles/TextBlock.xaml" />
             </ResourceDictionary.MergedDictionaries>
-            <Style TargetType="Button">
-                <Setter Property="VerticalAlignment" Value="Stretch" />
-                <Setter Property="HorizontalAlignment" Value="Stretch" />
-                <Setter Property="Background" Value="Gray" />
-                <Setter Property="CornerRadius" Value="4" />
-                <Setter Property="Foreground" Value="Black" />
-            </Style>
-            <!--  Other app resources here  -->
         </ResourceDictionary>
     </Application.Resources>
 </Application>

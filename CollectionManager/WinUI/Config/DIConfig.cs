@@ -4,11 +4,15 @@ using CollectionManager.Core.Factories;
 using CollectionManager.Core.Managers;
 using CollectionManager.Core.Services;
 using CollectionManager.Core.Utilities;
+using CollectionManager.WinUI.Activations;
+using CollectionManager.WinUI.Contracts;
+using CollectionManager.WinUI.Services;
 using CollectionManager.WinUI.UserControls;
 using CollectionManager.WinUI.ViewModels;
 using CollectionManager.WinUI.Views;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.UI.Xaml;
 using WinUI;
 namespace CollectionManager.WinUI.Config;
 
@@ -27,6 +31,7 @@ internal class DIConfig
     }
     private static void Pages(IServiceCollection services)
     {
+        services.AddTransient<ShellPage>();
         services.AddTransient<MainPage>();
         services.AddTransient<SearchPage>();
     }
@@ -38,8 +43,7 @@ internal class DIConfig
     {
         services.AddTransient<MainpageViewModel>();
         services.AddTransient<ContentDisplayViewModel>();
-        services.AddTransient<MainWindowViewModel>();
-        services.AddTransient<SearchPageViewModel>();
+        services.AddTransient<ShellViewModel>();
     }
     private static void Managers(IServiceCollection services)
     {
@@ -49,5 +53,11 @@ internal class DIConfig
     {
         services.AddTransient<IGameSiteCrawler, Par30gamesSiteCrawler>();
         services.AddDbContext<Context>(x=>x.UseSqlite(PathHelper.GetSqliteDatabaseConnectionString));
+        services.AddSingleton<INavigationService, NavigationService>();
+        services.AddSingleton<INavigationViewService, NavigationViewService>();
+        services.AddSingleton<IActivationService, ActivationService>();
+        services.AddSingleton<IActivationHandler, DefaultActivationHandler>();
+        services.AddSingleton<IPageService, PageService>();
+        services.AddTransient<ActivationHandler<LaunchActivatedEventArgs>, DefaultActivationHandler>();
     }
 }
