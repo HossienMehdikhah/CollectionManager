@@ -1,4 +1,5 @@
-﻿using CollectionManager.Core.Managers;
+﻿using CollectionManager.Core;
+using CollectionManager.Core.Managers;
 using CollectionManager.Core.Models;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
@@ -105,6 +106,7 @@ public partial class ContentDisplayViewModel(SiteManager siteManager) : Observab
     private async Task DownloadLinkSelectionConfirm(TreeView item)
     {
         var temp = item.SelectedItems.Where(x => x is DownloadURIDTO).Cast<DownloadURIDTO>().Select(x=>x.Uri).ToList();
+        Broker.AddToIDMDownLoadList(temp);
     }
 
 
