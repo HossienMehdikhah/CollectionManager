@@ -162,7 +162,7 @@
                     BorderBrush="Black"
                     BorderThickness="1"
                     CornerRadius="4">
-                    <StackPanel Margin="0,0,10,0">
+                    <StackPanel Margin="10,10,10,10">
                         <TextBlock
                             FlowDirection="RightToLeft"
                             Foreground="Black"

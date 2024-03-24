@@ -28,7 +28,7 @@ public sealed partial class ContentDisplayUserControl : UserControl
         {
             showDownloadLink.SelectedItems.Where(x => x is DownloadURIDTO);
         };
-        this.InitializeComponent();
+        InitializeComponent();
     }
     public ContentDisplayViewModel ViewModel { get => (ContentDisplayViewModel)DataContext; }
 

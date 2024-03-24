@@ -18,8 +18,10 @@
         <NavigationView.MenuItems>
             <NavigationViewItem helprs:NavigationHelper.NavigateTo="CollectionManager.WinUI.ViewModels.MainpageViewModel" Content="Feeds" />
             <NavigationViewItem helprs:NavigationHelper.NavigateTo="CollectionManager.WinUI.ViewModels.SearchPageViewModel" Content="Search" />
+            <NavigationViewItemSeparator />
+            <NavigationViewItem helprs:NavigationHelper.NavigateTo="CollectionManager.WinUI.ViewModels.SearchPageViewModel" Content="Marked" />
         </NavigationView.MenuItems>
-        <Grid Margin="{StaticResource NavigationViewPageContentMargin}">
+        <Grid>
             <Frame x:Name="NavigationFrame" />
         </Grid>
     </NavigationView>

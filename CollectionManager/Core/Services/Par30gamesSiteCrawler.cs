@@ -1,5 +1,4 @@
 ﻿using AngleSharp;
-using AngleSharp.Common;
 using AngleSharp.Dom;
 using CollectionManager.Core.Contracts.Services;
 using CollectionManager.Core.Factories;
@@ -7,13 +6,11 @@ using CollectionManager.Core.Models;
 using CollectionManager.Core.Utilities;
 using Flurl.Http;
 using Humanizer;
-using System.Collections;
 using System.Globalization;
-using System.Reflection.Metadata;
-using System.Xml.Linq;
+using System.Text.RegularExpressions;
 
 namespace CollectionManager.Core.Services;
-public class Par30gamesSiteCrawler() : IGameSiteCrawler
+public partial class Par30gamesSiteCrawler() : IGameSiteCrawler
 {
     private const string baseUrl = "https://par30games.net/";
     private const string feedUrl = baseUrl + "pc/page/{0}/";
@@ -54,7 +51,7 @@ public class Par30gamesSiteCrawler() : IGameSiteCrawler
         {
             return new GamePageDTO
             {
-                Name = GetNormalizeName(uir),
+                Name = GetNameFromURL(uir),
                 URL = uir,
             };
         });
@@ -77,7 +74,7 @@ public class Par30gamesSiteCrawler() : IGameSiteCrawler
 
             GamePageDTO gamePage = new()
             {
-                Name = GetNormalizeName(uri),
+                Name = GetNormalizeName(document),
                 URL = uri,
                 PublishDate = GetDateTime(document),
                 CoverLink = GetGameCover(document),
@@ -110,16 +107,13 @@ public class Par30gamesSiteCrawler() : IGameSiteCrawler
         var intDatetime = stringDatetime.Where(x => !string.IsNullOrEmpty(x)).Select(int.Parse).ToArray();
         return new DateOnly(intDatetime[2], intDatetime[1], intDatetime[0], new PersianCalendar());
     }
-    private string GetNormalizeName(Uri url)
+    private string GetNormalizeName(IDocument node)
     {
-        var urlSprated = url.ToString().Split('/');
-        var temp = urlSprated.ElementAt(urlSprated.Length - 2);
-        temp = temp.Replace("-", " ");
-        temp = temp.Replace("download", "");
-        temp = temp.Replace("game", "");
-        temp = temp.Replace("for", "");
-        temp = temp.Replace("pc", "");
-        return temp.Humanize(LetterCasing.Title);
+        var postHeaderNode = node.QuerySelector(".post-content > h2") ?? throw new Exception();
+        var rawName = postHeaderNode.TextContent;
+        var gameName = RegexHelper.TakeEnglishCharacterAndNumberFromPersian(rawName);
+        gameName = RegexHelper.ConvertRomanNumberToEnglish_Under40(gameName);
+        return NameNomalize(gameName);
     }
     private Uri? GetGameCover(IDocument document)
     {
@@ -174,9 +168,10 @@ public class Par30gamesSiteCrawler() : IGameSiteCrawler
             else links.Add(new Uri(item.Children[0].Attributes["href"].Value));
         }
         dic.Add(lastNode, links);
-        return dic.Select(x=> new EncoderPackageDTO { 
+        return dic.Select(x => new EncoderPackageDTO
+        {
             EncoderPackageName = x.Key,
-            DownloadLink = x.Value.Select(y=>
+            DownloadLink = x.Value.Select(y =>
             {
                 uint counter = 1;
                 return new DownloadURIDTO { PartNumber = $"Part {counter}", Uri = y };
@@ -198,4 +193,30 @@ public class Par30gamesSiteCrawler() : IGameSiteCrawler
             value += " MB";
         return value;
     }
+    private string GetNameFromURL(Uri url)
+    {
+        var splitedUrl = url.ToString().Split('/').ToArray();
+        var title = splitedUrl.ElementAt(splitedUrl.Length - 2);
+        title = title.Replace('-', ' ');
+        var result = GetGameNameFromURL().Match(title);
+        if (result.Groups.Count > 2)
+            throw new Exception();
+        var gameName = RegexHelper.ConvertRomanNumberToEnglish_Under40(result.Groups[1].Value);
+        return NameNomalize(gameName);
+    }
+    private string NameNomalize(string name)
+    {
+        var normalizedName = name.Humanize(LetterCasing.Title);
+        normalizedName= normalizedName.Replace(" S ", " ");
+        var splitedName = name.Split('’');
+        if (splitedName.Length > 1)
+        {
+            for (int i = 0; i < splitedName.Length; i += 2)
+                normalizedName = normalizedName.Replace(splitedName[i], splitedName[i] + "’s");
+        }
+        return normalizedName;
+    }
+
+    [GeneratedRegex("^download ([A-Za-z0-9’ ]*) for pc$")]
+    private static partial Regex GetGameNameFromURL();
 }

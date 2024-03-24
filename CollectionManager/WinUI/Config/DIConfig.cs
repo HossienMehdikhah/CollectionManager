@@ -44,6 +44,7 @@ internal class DIConfig
         services.AddTransient<MainpageViewModel>();
         services.AddTransient<ContentDisplayViewModel>();
         services.AddTransient<ShellViewModel>();
+        services.AddTransient<SearchPageViewModel>();
     }
     private static void Managers(IServiceCollection services)
     {

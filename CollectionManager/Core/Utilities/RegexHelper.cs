@@ -1,4 +1,5 @@
-﻿using System.Text.RegularExpressions;
+﻿using Humanizer;
+using System.Text.RegularExpressions;
 
 namespace CollectionManager.Core.Utilities;
 
@@ -10,7 +11,10 @@ public static partial class RegexHelper
     private static partial Regex TakeNumberPattern();
     [GeneratedRegex("\".*\"")]
     private static partial Regex TakeBetweenQuotePattern();
-
+    [GeneratedRegex("[A-Za-z0-9’]*")]
+    private static partial Regex TakeEnglishCharacterAndNumberFromPersianPattern();
+    [GeneratedRegex("X{0,4}V?I{0,4}")]
+    private static partial Regex RomanNumber_Under40Pattern();
 
     public static string RemoveWhiteSpace(string input)
     {
@@ -24,5 +28,28 @@ public static partial class RegexHelper
     public static string TakeBetweenQuote(string input)
     {
         return TakeBetweenQuotePattern().Matches(input).First().Value.Replace("\"","");
+    }
+    public static string TakeEnglishCharacterAndNumberFromPersian(string input)
+    {
+        return TakeEnglishCharacterAndNumberFromPersianPattern().Matches(input)
+            .Where(x => !x.ValueSpan.IsEmpty)
+            .Select(x => x.Value)
+            .Aggregate((x, y) => x + " " + y);
+    }
+    public static string ConvertRomanNumberToEnglish_Under40(string input)
+    {
+        string gameName = string.Empty;
+        foreach (var item in input.Split(' '))
+        {
+            if (IsRomanNumber_Under40(item.ToUpper()))
+                gameName += item.FromRoman().ToString() + " ";
+            else gameName += item + " ";
+        }
+        return gameName.TrimEnd();
+    }
+    public static bool IsRomanNumber_Under40(string input)
+    {
+        var result = RomanNumber_Under40Pattern().Match(input.ToUpper());
+        return !string.IsNullOrEmpty(result.Value);
     }
 }
