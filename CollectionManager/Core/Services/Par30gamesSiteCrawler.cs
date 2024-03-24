@@ -8,6 +8,7 @@ using Flurl.Http;
 using Humanizer;
 using System.Globalization;
 using System.Text.RegularExpressions;
+using System.Xml.Linq;
 
 namespace CollectionManager.Core.Services;
 public partial class Par30gamesSiteCrawler() : IGameSiteCrawler
@@ -74,8 +75,9 @@ public partial class Par30gamesSiteCrawler() : IGameSiteCrawler
 
             GamePageDTO gamePage = new()
             {
-                Name = GetNormalizeName(document),
                 URL = uri,
+                Name = GetNormalizeName(document),
+                Thumbnail = GetThumbnail(document),
                 PublishDate = GetDateTime(document),
                 CoverLink = GetGameCover(document),
                 Summery = GetSummery(document),
@@ -97,7 +99,7 @@ public partial class Par30gamesSiteCrawler() : IGameSiteCrawler
     private Uri GetUri(IElement node)
     {
         var hrefElement = node.QuerySelector("header h2 a");
-        return new Uri(System.Web.HttpUtility.UrlDecode(hrefElement.Attributes["href"].Value));
+        return new Uri(System.Web.HttpUtility.UrlDecode(hrefElement.Attributes["href"]?.Value));
     }
     private DateOnly GetDateTime(IDocument node)
     {
@@ -219,4 +221,10 @@ public partial class Par30gamesSiteCrawler() : IGameSiteCrawler
 
     [GeneratedRegex("^download ([A-Za-z0-9’ ]*) for pc$")]
     private static partial Regex GetGameNameFromURL();
+    private Uri GetThumbnail(IDocument document)
+    {
+        var postHeaderNode = document.QuerySelector(".review > div.pic > img") ?? throw new Exception();
+        var link = System.Web.HttpUtility.UrlDecode(postHeaderNode.Attributes["data-src"]?.Value);
+        return new Uri(link!);
+    }
 }

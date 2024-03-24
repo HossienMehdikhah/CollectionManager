@@ -12,6 +12,7 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <WindowsAppSDKSelfContained>true</WindowsAppSDKSelfContained>
     <Nullable>enable</Nullable>
+    <UserSecretsId>de2630ac-21f0-4dfb-aecc-9a4ade791e03</UserSecretsId>
   </PropertyGroup>
   <ItemGroup>
     <None Remove="Pages\ListadPage.xaml" />

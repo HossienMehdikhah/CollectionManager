@@ -6,6 +6,7 @@ public class GamePageDTO
 
     public string Name { get; set; } = "No Name";
     public Uri? URL { get; set; }
+    public Uri? Thumbnail { get; set; }
     public DateOnly PublishDate { get; set; }
     public MarkedType MarkedType { get; set; }
     public Uri? CoverLink { get; set; }

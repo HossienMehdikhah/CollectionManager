@@ -20,7 +20,7 @@ public class Context : DbContext
             .IsRequired();
             x.Property(x => x.Uri)
             .IsRequired();
-           
+            x.Property(x => x.Thumbnail);
         });
     }
 
