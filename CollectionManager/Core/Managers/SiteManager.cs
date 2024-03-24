@@ -3,13 +3,14 @@ using CollectionManager.Core.Models;
 using Humanizer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
+using System.Diagnostics;
 namespace CollectionManager.Core.Managers;
 
 public class SiteManager(IGameSiteCrawler _gameSiteCrawler, IOptions<CollectionManagerOption> option, Context context)
 {
     private uint fetchPostCount = 0;
     private uint maxAvailablePost = 0;
-    private readonly CollectionManagerOption collectionManagerOption= option.Value;
+    private readonly CollectionManagerOption collectionManagerOption = option.Value;
     public async IAsyncEnumerable<GamePageDTO> GetFeedFromGalleryPage()
     {
         while (maxAvailablePost <= collectionManagerOption.MaxAvailablePost)

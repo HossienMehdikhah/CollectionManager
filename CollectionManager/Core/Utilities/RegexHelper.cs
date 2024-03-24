@@ -13,7 +13,7 @@ public static partial class RegexHelper
     private static partial Regex TakeBetweenQuotePattern();
     [GeneratedRegex("[A-Za-z0-9’]*")]
     private static partial Regex TakeEnglishCharacterAndNumberFromPersianPattern();
-    [GeneratedRegex("X{0,4}V?I{0,4}")]
+    [GeneratedRegex(" X{0,4}V?I{0,4} ")]
     private static partial Regex RomanNumber_Under40Pattern();
 
     public static string RemoveWhiteSpace(string input)
@@ -31,17 +31,17 @@ public static partial class RegexHelper
     }
     public static string TakeEnglishCharacterAndNumberFromPersian(string input)
     {
-        return TakeEnglishCharacterAndNumberFromPersianPattern().Matches(input)
-            .Where(x => !x.ValueSpan.IsEmpty)
-            .Select(x => x.Value)
-            .Aggregate((x, y) => x + " " + y);
+        var word = TakeEnglishCharacterAndNumberFromPersianPattern().Matches(input)
+            .Where(x => !string.IsNullOrEmpty(x.Value))
+            .Select(x => x.Value);
+        return word.Aggregate((x, y) => x + " " + y);
     }
     public static string ConvertRomanNumberToEnglish_Under40(string input)
     {
         string gameName = string.Empty;
         foreach (var item in input.Split(' '))
         {
-            if (IsRomanNumber_Under40(item.ToUpper()))
+            if (IsRomanNumber_Under40(item))
                 gameName += item.FromRoman().ToString() + " ";
             else gameName += item + " ";
         }

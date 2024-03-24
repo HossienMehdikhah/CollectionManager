@@ -58,7 +58,6 @@ public class MainpageViewModel : ObservableObject
     public async Task Init()
     {
         await FetchPostsAndShowFirstItem();
-        //DeactivateLoading();
     }
     
 
@@ -81,8 +80,8 @@ public class MainpageViewModel : ObservableObject
         }
         else
         {
-            if (!isBackgroundWorkerRunning)
-                await FetchPostsAndShowFirstItem();
+            if (isBackgroundWorkerRunning)
+                ActivateLoading();
         }
     }
     private void PreviousButtonEvent()
@@ -99,19 +98,18 @@ public class MainpageViewModel : ObservableObject
     {
         ActivateLoading();
         isBackgroundWorkerRunning = true;
-        bool isFirstPost = true;
         await foreach (var gamePage in siteManager.GetFeedFromGalleryPage())
         {
             gamePageList.Add(gamePage);
-            if (isFirstPost)
+            if (progressRingIsActive)
             {
-                isFirstPost = false;
                 gamePageListIndex++;
                 CurrentPage = gamePageList.ElementAt(gamePageListIndex);
                 DeactivateLoading();
             }
         }
         isBackgroundWorkerRunning = false;
+        DeactivateLoading();
     }
     private void ActivateLoading()
     {
