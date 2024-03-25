@@ -32,9 +32,9 @@ public static partial class RegexHelper
     public static string TakeEnglishCharacterAndNumberFromPersian(string input)
     {
         var word = TakeEnglishCharacterAndNumberFromPersianPattern().Matches(input)
-            .Where(x => !string.IsNullOrEmpty(x.Value))
-            .Select(x => x.Value);
-        return word.Aggregate((x, y) => x + " " + y);
+            .Select(x => x.Value)
+            .Where(x => !string.IsNullOrEmpty(x));
+        return word.Count()>0 ? word.Aggregate((x, y) => x + " " + y) : input;
     }
     public static string ConvertRomanNumberToEnglish_Under40(string input)
     {

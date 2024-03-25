@@ -4,6 +4,7 @@ using CollectionManager.WinUI.Contracts;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 using Microsoft.UI.Xaml;
 using WinUIEx;
 namespace WinUI;
@@ -14,6 +15,8 @@ public partial class App : Application
         InitializeComponent();
         var builder = Microsoft.Extensions.Hosting.Host.CreateApplicationBuilder();
         builder.Configuration.AddJsonFile("appsettings.json");
+        builder.Logging.ClearProviders();
+        builder.Logging.AddDebug();
         DIConfig.Config(builder.Services);
         builder.Services.Configure<CollectionManagerOption>(builder.Configuration.GetRequiredSection(nameof(CollectionManagerOption)));
         Host = builder.Build();

@@ -1,4 +1,5 @@
 ﻿using CollectionManager.WinUI.Contracts;
+using CollectionManager.WinUI.Pages;
 using CollectionManager.WinUI.UserControls;
 using CollectionManager.WinUI.ViewModels;
 using CollectionManager.WinUI.Views;
@@ -14,6 +15,7 @@ public class PageService : IPageService
     {
         Configure<MainpageViewModel, MainPage>();
         Configure<SearchPageViewModel, SearchPage>();
+        Configure<ListedPageViewModel, ListadPage>();
     }
     public Type GetPageType(string key)
     {

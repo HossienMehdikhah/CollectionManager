@@ -75,6 +75,7 @@ public class SiteManager(IGameSiteCrawler _gameSiteCrawler, IOptions<CollectionM
                 MarkedType = type,
                 Name = NameNormalizer(gamePageDTO.Name),
                 Uri = gamePageDTO.URL,
+                Thumbnail = gamePageDTO.Thumbnail,
             });
         }
         else

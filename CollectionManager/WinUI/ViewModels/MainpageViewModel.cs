@@ -96,20 +96,28 @@ public class MainpageViewModel : ObservableObject
 
     private async Task FetchPostsAndShowFirstItem()
     {
-        ActivateLoading();
-        isBackgroundWorkerRunning = true;
-        await foreach (var gamePage in siteManager.GetFeedFromGalleryPage())
+        try
         {
-            gamePageList.Add(gamePage);
-            if (progressRingIsActive)
+            ActivateLoading();
+            isBackgroundWorkerRunning = true;
+            await foreach (var gamePage in siteManager.GetFeedFromGalleryPage())
             {
-                gamePageListIndex++;
-                CurrentPage = gamePageList.ElementAt(gamePageListIndex);
-                DeactivateLoading();
+                gamePageList.Add(gamePage);
+                if (progressRingIsActive)
+                {
+                    gamePageListIndex++;
+                    CurrentPage = gamePageList.ElementAt(gamePageListIndex);
+                    DeactivateLoading();
+                }
             }
+            isBackgroundWorkerRunning = false;
+            DeactivateLoading();
         }
-        isBackgroundWorkerRunning = false;
-        DeactivateLoading();
+        catch
+        {
+            DeactivateLoading();
+            isBackgroundWorkerRunning = false;
+        }
     }
     private void ActivateLoading()
     {

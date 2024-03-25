@@ -6,6 +6,7 @@ using CollectionManager.Core.Services;
 using CollectionManager.Core.Utilities;
 using CollectionManager.WinUI.Activations;
 using CollectionManager.WinUI.Contracts;
+using CollectionManager.WinUI.Pages;
 using CollectionManager.WinUI.Services;
 using CollectionManager.WinUI.UserControls;
 using CollectionManager.WinUI.ViewModels;
@@ -34,10 +35,11 @@ internal class DIConfig
         services.AddTransient<ShellPage>();
         services.AddTransient<MainPage>();
         services.AddTransient<SearchPage>();
+        services.AddTransient<ListadPage>();
     }
     private static void UserControls(IServiceCollection services)
     {
-        services.AddTransient<ContentDisplayUserControl>();
+        services.AddTransient<ContentDisplayUserControl>();        
     }
     private static void ViewModels(IServiceCollection services)
     {
@@ -45,6 +47,7 @@ internal class DIConfig
         services.AddTransient<ContentDisplayViewModel>();
         services.AddTransient<ShellViewModel>();
         services.AddTransient<SearchPageViewModel>();
+        services.AddTransient<ListedPageViewModel>();
     }
     private static void Managers(IServiceCollection services)
     {

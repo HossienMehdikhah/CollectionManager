@@ -6,12 +6,12 @@ using CollectionManager.Core.Models;
 using CollectionManager.Core.Utilities;
 using Flurl.Http;
 using Humanizer;
+using Microsoft.Extensions.Logging;
 using System.Globalization;
 using System.Text.RegularExpressions;
-using System.Xml.Linq;
 
 namespace CollectionManager.Core.Services;
-public partial class Par30gamesSiteCrawler() : IGameSiteCrawler
+public partial class Par30gamesSiteCrawler(ILogger<Par30gamesSiteCrawler> logger) : IGameSiteCrawler
 {
     private const string baseUrl = "https://par30games.net/";
     private const string feedUrl = baseUrl + "pc/page/{0}/";
@@ -72,18 +72,27 @@ public partial class Par30gamesSiteCrawler() : IGameSiteCrawler
         {
             var pageContentHtml = await uri.GetStringAsync();
             var document = await context.OpenAsync(x => x.Content(pageContentHtml));
-
-            GamePageDTO gamePage = new()
+            GamePageDTO gamePage = new();
+            try
             {
-                URL = uri,
-                Name = GetNormalizeName(document),
-                Thumbnail = GetThumbnail(document),
-                PublishDate = GetDateTime(document),
-                CoverLink = GetGameCover(document),
-                Summery = GetSummery(document),
-                GalleryLink = GetGalleryLink(document),
-                DownloadLink = GetDownloadLink(document)
-            };
+                gamePage.URL = uri;
+                gamePage.Name = GetNormalizeName(document);
+                gamePage.Thumbnail = GetThumbnail(document);
+                gamePage.PublishDate = GetDateTime(document);
+                gamePage.CoverLink = GetGameCover(document);
+                gamePage.Summery = GetSummery(document);
+                gamePage.GalleryLink = GetGalleryLink(document);
+                gamePage.DownloadLink = GetDownloadLink(document);
+            }
+            catch (NotFundHtmlSectionException)
+            {
+                logger.LogError("Exception", uri);
+                continue;
+            }
+            catch
+            {
+                continue;
+            }
             yield return gamePage;
         }
     }
@@ -111,11 +120,25 @@ public partial class Par30gamesSiteCrawler() : IGameSiteCrawler
     }
     private string GetNormalizeName(IDocument node)
     {
-        var postHeaderNode = node.QuerySelector(".post-content > h2") ?? throw new Exception();
-        var rawName = postHeaderNode.TextContent;
-        var gameName = RegexHelper.TakeEnglishCharacterAndNumberFromPersian(rawName);
-        gameName = RegexHelper.ConvertRomanNumberToEnglish_Under40(gameName);
-        return NameNomalize(gameName);
+        try
+        {
+            throw new NotFundHtmlSectionException();
+
+            var postHeaderNode = node.QuerySelector(".post-content > h2") ?? throw new NotFundHtmlSectionException();
+            var rawName = postHeaderNode.TextContent;
+            var gameName = RegexHelper.TakeEnglishCharacterAndNumberFromPersian(rawName);
+            gameName = RegexHelper.ConvertRomanNumberToEnglish_Under40(gameName);
+            return NameNomalize(gameName);
+        }
+        catch (NotFundHtmlSectionException)
+        {
+            throw;
+        }
+        catch (Exception e)
+        {
+            logger.LogError(e,"ex");
+            throw;
+        }
     }
     private Uri? GetGameCover(IDocument document)
     {
@@ -209,7 +232,7 @@ public partial class Par30gamesSiteCrawler() : IGameSiteCrawler
     private string NameNomalize(string name)
     {
         var normalizedName = name.Humanize(LetterCasing.Title);
-        normalizedName= normalizedName.Replace(" S ", " ");
+        normalizedName = normalizedName.Replace(" S ", " ");
         var splitedName = name.Split('’');
         if (splitedName.Length > 1)
         {

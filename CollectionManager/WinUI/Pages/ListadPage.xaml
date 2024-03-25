@@ -10,17 +10,17 @@
     Background="{ThemeResource ApplicationPageBackgroundThemeBrush}"
     mc:Ignorable="d">
     <Page.Resources>
-        <DataTemplate x:Key="ContactListViewTemplate" x:DataType="models:GameSet">
+        <DataTemplate x:Key="ContactListViewTemplate" x:DataType="models:GamePageDTO">
             <Grid>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="Auto" />
                     <ColumnDefinition Width="*" />
                 </Grid.ColumnDefinitions>
-                <!--<Image>
+                <Image>
                     <Image.Source>
-                        <BitmapImage UriSource="{x:Bind}" />
+                        <BitmapImage UriSource="{x:Bind Thumbnail}" />
                     </Image.Source>
-                </Image>-->
+                </Image>
                 <TextBlock
                     Grid.Column="1"
                     Margin="12,6,0,0"
@@ -30,5 +30,6 @@
             </Grid>
         </DataTemplate>
     </Page.Resources>
+   
     <ListView ItemTemplate="{StaticResource ContactListViewTemplate}" SelectionMode="Single" />
 </Page>
