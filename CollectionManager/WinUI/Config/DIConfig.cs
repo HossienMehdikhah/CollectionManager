@@ -8,6 +8,7 @@ using CollectionManager.WinUI.Activations;
 using CollectionManager.WinUI.Contracts;
 using CollectionManager.WinUI.Pages;
 using CollectionManager.WinUI.Services;
+using CollectionManager.WinUI.Singleton;
 using CollectionManager.WinUI.UserControls;
 using CollectionManager.WinUI.ViewModels;
 using CollectionManager.WinUI.Views;
@@ -28,7 +29,7 @@ internal class DIConfig
         Services(services);
         services.AddTransient<MainWindow>();
         services.AddTransient<AngleSharpFactory>();
-        Singleton.SingletonProvider.Build(services);
+        services.AddSingleton(FeedPageViewModelSingleton.Build());
         return services;
     }
     private static void Pages(IServiceCollection services)

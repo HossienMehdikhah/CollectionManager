@@ -15,7 +15,6 @@ public partial class FeedPageViewModel(SiteManager siteManager,
     [ObservableProperty]
     private Visibility progressRingVisibility = Visibility.Visible;
     private readonly List<GamePageDTO> gamePageList = [];
-    private readonly CollectionManagerOption option = option.Value;
     private int gamePageListIndex = -1;
     private bool isBackgroundWorkerRunning;
 
@@ -41,7 +40,7 @@ public partial class FeedPageViewModel(SiteManager siteManager,
         {
             CurrentPage = gamePageList[++gamePageListIndex];
             if (!isBackgroundWorkerRunning 
-                && gamePageList.Count - (gamePageListIndex + 1) <= option.SearchThreshold)
+                && gamePageList.Count - (gamePageListIndex + 1) <= option.Value.SearchThreshold)
             {
                 isBackgroundWorkerRunning = true;
                 await foreach (var gamePage in siteManager.GetFeedFromGalleryPage(CancellationToken))

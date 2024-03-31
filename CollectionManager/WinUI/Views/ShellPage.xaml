@@ -16,7 +16,7 @@
         PaneDisplayMode="Top"
         SelectedItem="{x:Bind ViewModel.Selected, Mode=OneWay}">
         <NavigationView.MenuItems>
-            <NavigationViewItem helprs:NavigationHelper.NavigateTo="CollectionManager.WinUI.ViewModels.FeedViewModel" Content="Feeds" />
+            <NavigationViewItem helprs:NavigationHelper.NavigateTo="CollectionManager.WinUI.ViewModels.FeedPageViewModel" Content="Feeds" />
             <NavigationViewItem helprs:NavigationHelper.NavigateTo="CollectionManager.WinUI.ViewModels.SearchPageViewModel" Content="Search" />
             <NavigationViewItemSeparator />
             <NavigationViewItem helprs:NavigationHelper.NavigateTo="CollectionManager.WinUI.ViewModels.ListedPageViewModel" Content="Marked" />
