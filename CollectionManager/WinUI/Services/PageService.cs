@@ -13,7 +13,7 @@ public class PageService : IPageService
 
     public PageService()
     {
-        Configure<MainpageViewModel, MainPage>();
+        Configure<FeedViewModel, FeedPage>();
         Configure<SearchPageViewModel, SearchPage>();
         Configure<ListedPageViewModel, ListadPage>();
     }

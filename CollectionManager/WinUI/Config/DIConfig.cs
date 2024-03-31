@@ -34,7 +34,7 @@ internal class DIConfig
     private static void Pages(IServiceCollection services)
     {
         services.AddTransient<ShellPage>();
-        services.AddTransient<MainPage>();
+        services.AddTransient<FeedPage>();
         services.AddTransient<SearchPage>();
         services.AddTransient<ListadPage>();
     }
@@ -44,7 +44,7 @@ internal class DIConfig
     }
     private static void ViewModels(IServiceCollection services)
     {
-        services.AddTransient<MainpageViewModel>();
+        services.AddTransient<FeedViewModel>();
         services.AddTransient<ContentDisplayViewModel>();
         services.AddTransient<ShellViewModel>();
         services.AddTransient<SearchPageViewModel>();

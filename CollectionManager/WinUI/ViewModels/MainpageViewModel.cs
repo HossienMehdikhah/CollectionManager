@@ -6,7 +6,7 @@ using Microsoft.Extensions.Options;
 using Microsoft.UI.Xaml;
 namespace CollectionManager.WinUI.ViewModels;
 
-public partial class MainpageViewModel(SiteManager siteManager,
+public partial class FeedViewModel(SiteManager siteManager,
     IOptions<CollectionManagerOption> option) : ObservableObject
 {
     private GamePageDTO currentPage = new();
