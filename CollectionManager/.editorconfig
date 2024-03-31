@@ -1,0 +1,6 @@
+# C# or VB files
+[*.{cs,vb}]
+guidelines = 100
+# ARGB color format (red with 25% opacity)
+guidelines_style = 2.5px solid 40ff0000
+

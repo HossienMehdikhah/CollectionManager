@@ -8,9 +8,10 @@ using Flurl.Http;
 using Humanizer;
 using Microsoft.Extensions.Logging;
 using System.Globalization;
+using System.Runtime.CompilerServices;
 using System.Text.RegularExpressions;
-
 namespace CollectionManager.Core.Services;
+
 public partial class Par30gamesSiteCrawler(ILogger<Par30gamesSiteCrawler> logger) : IGameSiteCrawler
 {
     private const string baseUrl = "https://par30games.net/";
@@ -18,29 +19,26 @@ public partial class Par30gamesSiteCrawler(ILogger<Par30gamesSiteCrawler> logger
     private const string seachUrl = baseUrl + "/page/1/?s=دانلود+{0}+pc";
     private const byte maxPostPerPage = 8;
 
-    public async IAsyncEnumerable<GamePageDTO> GetFeedAsync(uint skipPostCount, uint takePostCount)
+    public uint CrawledPostCount { get; private set; }
+
+    public async IAsyncEnumerable<GamePageDTO> GetFeedAsync(uint skipPostCount, uint takePostCount,
+        CancellationToken cancellationToken)
     {
         IBrowsingContext context = AngleSharpFactory.CreateDefault();
         var skipPage = skipPostCount / maxPostPerPage;
         var uri = string.Format(feedUrl, ++skipPage);
-        var stringDocument = await uri.GetStringAsync();
-        var document = await context.OpenAsync(x => x.Content(stringDocument));
+        var stringDocument = await uri.GetStringAsync(cancellationToken: cancellationToken);
+        var document = await context.OpenAsync(x => x.Content(stringDocument), cancellationToken);
         var Articles = GetArticles(document);
+        CrawledPostCount += (uint)Articles.Count();
         await foreach (var item in GetGamePagesLinkAsync(Articles.ToArray()))
         {
             yield return item;
         }
     }
-    public async Task<GamePageDTO> GetPageAsync(Uri uri)
+    public Task<GamePageDTO> GetPageAsync(Uri uri)
     {
-        GamePageDTO selectedPage = new();
-        CancellationToken cancellationToken = CancellationToken.None;
-        await foreach (var item in GetGamePagesLinkAsync(uri).WithCancellation(cancellationToken))
-        {
-            selectedPage = item;
-            cancellationToken = new CancellationToken(true);
-        }
-        return selectedPage;
+        return GetGamePageLinkAsync(uri);
     }
     public async Task<IEnumerable<GamePageDTO>> GetSearchSuggestionAsync(string query)
     {
@@ -62,40 +60,52 @@ public partial class Par30gamesSiteCrawler(ILogger<Par30gamesSiteCrawler> logger
 
     private IEnumerable<Uri> GetArticles(IDocument document)
     {
-        var Articles = document.QuerySelectorAll(".post.icon-steam")?.Select(x => GetUri(x));
-        return Articles;
+        var Articles = document.QuerySelectorAll(".post.icon-steam");
+        if (Articles.Length != 0)
+            return Articles.Select(GetUri);
+        else throw new NotFundHtmlSectionException();
     }
-    private async IAsyncEnumerable<GamePageDTO> GetGamePagesLinkAsync(params Uri[] uriArticles)
+    private async IAsyncEnumerable<GamePageDTO> GetGamePagesLinkAsync(IEnumerable<Uri> uriArticles,
+        [EnumeratorCancellation] CancellationToken cancellationToken = default)
     {
         IBrowsingContext context = AngleSharpFactory.CreateDefault();
         foreach (var uri in uriArticles)
         {
-            var pageContentHtml = await uri.GetStringAsync();
-            var document = await context.OpenAsync(x => x.Content(pageContentHtml));
-            GamePageDTO gamePage = new();
-            try
-            {
-                gamePage.URL = uri;
-                gamePage.Name = GetNormalizeName(document);
-                gamePage.Thumbnail = GetThumbnail(document);
-                gamePage.PublishDate = GetDateTime(document);
-                gamePage.CoverLink = GetGameCover(document);
-                gamePage.Summery = GetSummery(document);
-                gamePage.GalleryLink = GetGalleryLink(document);
-                gamePage.DownloadLink = GetDownloadLink(document);
-            }
-            catch (NotFundHtmlSectionException)
-            {
-                logger.LogError("Exception", uri);
-                continue;
-            }
-            catch
-            {
-                continue;
-            }
-            yield return gamePage;
+            var gamepage = await GetGamePageLinkAsync(uri, context, cancellationToken);
+            yield return gamepage;
         }
     }
+    private async Task<GamePageDTO> GetGamePageLinkAsync(Uri uri, IBrowsingContext? context = null,
+        CancellationToken cancellationToken = default)
+    {
+        try
+        {
+            context ??= AngleSharpFactory.CreateDefault();
+            var pageContentHtml = await uri.GetStringAsync(cancellationToken: cancellationToken);
+            var document = await context.OpenAsync(x => x.Content(pageContentHtml));
+            return new GamePageDTO()
+            {
+                URL = uri,
+                Name = GetNormalizeName(document),
+                Thumbnail = GetThumbnail(document),
+                PublishDate = GetDateTime(document),
+                CoverLink = GetGameCover(document),
+                Summery = GetSummery(document),
+                GalleryLink = GetGalleryLink(document),
+                DownloadLink = GetDownloadLink(document),
+            };
+        }
+        catch (NotFundHtmlSectionException)
+        {
+            logger.LogError("Exception", uri);
+            throw;
+        }
+        catch
+        {
+            throw;
+        }
+    }
+
     private string GetSummery(IDocument document)
     {
         var temp = document.QuerySelector(".post-content")
@@ -122,8 +132,6 @@ public partial class Par30gamesSiteCrawler(ILogger<Par30gamesSiteCrawler> logger
     {
         try
         {
-            throw new NotFundHtmlSectionException();
-
             var postHeaderNode = node.QuerySelector(".post-content > h2") ?? throw new NotFundHtmlSectionException();
             var rawName = postHeaderNode.TextContent;
             var gameName = RegexHelper.TakeEnglishCharacterAndNumberFromPersian(rawName);
@@ -136,7 +144,7 @@ public partial class Par30gamesSiteCrawler(ILogger<Par30gamesSiteCrawler> logger
         }
         catch (Exception e)
         {
-            logger.LogError(e,"ex");
+            logger.LogError(e, "ex");
             throw;
         }
     }

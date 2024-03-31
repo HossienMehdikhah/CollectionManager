@@ -6,27 +6,18 @@ using Microsoft.Extensions.Options;
 using Microsoft.UI.Xaml;
 namespace CollectionManager.WinUI.ViewModels;
 
-public class MainpageViewModel : ObservableObject
+public partial class MainpageViewModel(SiteManager siteManager,
+    IOptions<CollectionManagerOption> option) : ObservableObject
 {
-    #region Property_Field
     private GamePageDTO currentPage = new();
+    [ObservableProperty]
     private bool progressRingIsActive = true;
+    [ObservableProperty]
     private Visibility progressRingVisibility = Visibility.Visible;
-    #endregion
-
     private readonly List<GamePageDTO> gamePageList = [];
-    private readonly SiteManager siteManager;
-    private readonly CollectionManagerOption option;
+    private readonly CollectionManagerOption option = option.Value;
     private int gamePageListIndex = -1;
     private bool isBackgroundWorkerRunning;
-
-    public MainpageViewModel(SiteManager siteManager, IOptions<CollectionManagerOption> option)
-    {
-        this.siteManager = siteManager;
-        this.option = option.Value;
-        NextButtonCommand = new AsyncRelayCommand(NextButtonEvent);
-        PreviousButtonCommand = new RelayCommand(PreviousButtonEvent);
-    }
 
     public GamePageDTO CurrentPage
     {
@@ -36,42 +27,24 @@ public class MainpageViewModel : ObservableObject
             SetProperty(ref currentPage, value);
         }
     }
-    public bool ProgressRingIsActive
-    {
-        get => progressRingIsActive;
-        private set
-        {
-            SetProperty(ref progressRingIsActive, value);
-        }
-    }
-    public Visibility ProgressRingVisibility
-    {
-        get => progressRingVisibility;
-        private set
-        {
-            SetProperty(ref progressRingVisibility, value);
-        }
-    }
-    public IAsyncRelayCommand NextButtonCommand { get; set; }
-    public IRelayCommand PreviousButtonCommand { get; set; }
+    public CancellationToken CancellationToken { get; set; }
 
-    public async Task Init()
+    [RelayCommand]
+    public async Task Loading()
     {
         await FetchPostsAndShowFirstItem();
-    }
-    
-
-
-    #region Command
+    }    
+    [RelayCommand]
     private async Task NextButtonEvent()
     {
         if (gamePageListIndex + 2 <= gamePageList.Count)
         {
             CurrentPage = gamePageList[++gamePageListIndex];
-            if (!isBackgroundWorkerRunning && gamePageList.Count - (gamePageListIndex + 1) <= option.SearchThreshold)
+            if (!isBackgroundWorkerRunning 
+                && gamePageList.Count - (gamePageListIndex + 1) <= option.SearchThreshold)
             {
                 isBackgroundWorkerRunning = true;
-                await foreach (var gamePage in siteManager.GetFeedFromGalleryPage())
+                await foreach (var gamePage in siteManager.GetFeedFromGalleryPage(CancellationToken))
                 {
                     gamePageList.Add(gamePage);
                 }
@@ -84,6 +57,7 @@ public class MainpageViewModel : ObservableObject
                 ActivateLoading();
         }
     }
+    [RelayCommand]
     private void PreviousButtonEvent()
     {
         if (gamePageListIndex >= 0)
@@ -91,7 +65,6 @@ public class MainpageViewModel : ObservableObject
             CurrentPage = gamePageList[--gamePageListIndex];
         }
     }
-    #endregion
 
 
     private async Task FetchPostsAndShowFirstItem()
@@ -100,10 +73,10 @@ public class MainpageViewModel : ObservableObject
         {
             ActivateLoading();
             isBackgroundWorkerRunning = true;
-            await foreach (var gamePage in siteManager.GetFeedFromGalleryPage())
+            await foreach (var gamePage in siteManager.GetFeedFromGalleryPage(CancellationToken))
             {
                 gamePageList.Add(gamePage);
-                if (progressRingIsActive)
+                if (ProgressRingIsActive)
                 {
                     gamePageListIndex++;
                     CurrentPage = gamePageList.ElementAt(gamePageListIndex);

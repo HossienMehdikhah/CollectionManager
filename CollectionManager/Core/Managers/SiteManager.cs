@@ -3,21 +3,24 @@ using CollectionManager.Core.Models;
 using Humanizer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
-using System.Diagnostics;
+using System.Runtime.CompilerServices;
 namespace CollectionManager.Core.Managers;
 
-public class SiteManager(IGameSiteCrawler _gameSiteCrawler, IOptions<CollectionManagerOption> option, Context context)
+public class SiteManager(IGameSiteCrawler _gameSiteCrawler, IOptions<CollectionManagerOption> option,
+    Context context)
 {
     private uint fetchPostCount = 0;
     private uint maxAvailablePost = 0;
     private readonly CollectionManagerOption collectionManagerOption = option.Value;
-    public async IAsyncEnumerable<GamePageDTO> GetFeedFromGalleryPage()
+    public async IAsyncEnumerable<GamePageDTO> GetFeedFromGalleryPage
+        ([EnumeratorCancellation] CancellationToken cancellationToken)
     {
         while (maxAvailablePost <= collectionManagerOption.MaxAvailablePost)
         {
-            await foreach (var item in _gameSiteCrawler.GetFeedAsync(fetchPostCount, collectionManagerOption.MaxAvailablePost))
+            await foreach (var item in _gameSiteCrawler.GetFeedAsync(fetchPostCount,
+                collectionManagerOption.MaxAvailablePost,
+                cancellationToken))
             {
-                fetchPostCount++;
                 await DefineGameType(item);
                 if (item.MarkedType == MarkedType.New)
                 {
@@ -25,6 +28,7 @@ public class SiteManager(IGameSiteCrawler _gameSiteCrawler, IOptions<CollectionM
                     yield return item;
                 }
             }
+            fetchPostCount = _gameSiteCrawler.CrawledPostCount;
         }
         maxAvailablePost = 0;
     }
@@ -60,6 +64,17 @@ public class SiteManager(IGameSiteCrawler _gameSiteCrawler, IOptions<CollectionM
         await AddToCollection(gamePageDTO, MarkedType.EarlyAccess);
         await context.SaveChangesAsync();
         gamePageDTO.MarkedType = MarkedType.EarlyAccess;
+    }
+    public async Task<IEnumerable<GamePageDTO>> GetGameFromDatabase(MarkedType markedType)
+    {
+        var data = await context.Games.Where(x => x.MarkedType == markedType).ToListAsync();
+        return data.Select(x=> new GamePageDTO 
+        { 
+            Name = x.Name,
+            URL = x.Uri,
+            MarkedType = x.MarkedType,
+            Thumbnail = x.Thumbnail,
+        });
     }
 
 

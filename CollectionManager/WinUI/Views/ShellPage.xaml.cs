@@ -8,7 +8,6 @@ public sealed partial class ShellPage : Page
     {
         ViewModel = shellViewModel;
         InitializeComponent();
-
         ViewModel.NavigationService.Frame = NavigationFrame;
         ViewModel.NavigationViewService.Initialize(NavigationViewControl);
     }

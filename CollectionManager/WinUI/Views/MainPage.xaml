@@ -3,13 +3,19 @@
     x:Class="CollectionManager.WinUI.Views.MainPage"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:core="using:Microsoft.Xaml.Interactions.Core"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:interactivity="using:Microsoft.Xaml.Interactivity"
     xmlns:local="using:CollectionManager.WinUI.Views"
     xmlns:localsys="using:System"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:usercontrols="using:CollectionManager.WinUI.UserControls"
-    Loading="MainPage_Loading"
     mc:Ignorable="d">
+    <interactivity:Interaction.Behaviors>
+        <core:EventTriggerBehavior EventName="Loading">
+            <core:InvokeCommandAction Command="{x:Bind Path=viewModel.LoadingCommand}" />
+        </core:EventTriggerBehavior>
+    </interactivity:Interaction.Behaviors>
     <Grid>
         <Grid
             Background="LightGray"
@@ -42,13 +48,13 @@
                     x:Name="PreviousButton"
                     Grid.Column="0"
                     Margin="10,5,0,5"
-                    Command="{x:Bind viewModel.PreviousButtonCommand}"
+                    Command="{x:Bind viewModel.PreviousButtonEventCommand}"
                     Content="Previous" />
                 <Button
                     x:Name="NextButton"
                     Grid.Column="3"
                     Margin="0,5,10,5"
-                    Command="{x:Bind viewModel.NextButtonCommand}"
+                    Command="{x:Bind viewModel.NextButtonEventCommand}"
                     Content="Next" />
             </Grid>
             <usercontrols:ContentDisplayUserControl

@@ -28,6 +28,7 @@ internal class DIConfig
         Services(services);
         services.AddTransient<MainWindow>();
         services.AddTransient<AngleSharpFactory>();
+        Singleton.SingletonProvider.Build(services);
         return services;
     }
     private static void Pages(IServiceCollection services)

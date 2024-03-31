@@ -30,12 +30,14 @@ namespace CollectionManager.WinUI.Views
         private readonly MainpageViewModel viewModel;
         public MainPage()
         {
+            this.Unloaded += MainPage_Unloaded;
             viewModel = App.GetService<MainpageViewModel>();
             this.InitializeComponent();
         }
-        private void MainPage_Loading(FrameworkElement sender, object args)
+
+        private void MainPage_Unloaded(object sender, RoutedEventArgs e)
         {
-            viewModel.Init();
+           viewModel.CancellationToken = new CancellationToken(true);
         }
     }
 }
