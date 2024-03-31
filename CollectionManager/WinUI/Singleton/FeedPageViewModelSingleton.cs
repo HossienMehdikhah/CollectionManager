@@ -12,4 +12,5 @@ public class FeedPageViewModelSingleton
         return new FeedPageViewModelSingleton();
     }
     public List<GamePageDTO> GamePageList { get; init; } = [];
+    public uint FetchedPostsCount { get; set; }
 }

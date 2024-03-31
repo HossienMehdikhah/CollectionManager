@@ -9,18 +9,18 @@ namespace CollectionManager.Core.Managers;
 public class SiteManager(IGameSiteCrawler _gameSiteCrawler, IOptions<CollectionManagerOption> option,
     Context context)
 {
-    private uint fetchPostCount = 0;
     private uint maxAvailablePost = 0;
-    private readonly CollectionManagerOption collectionManagerOption = option.Value;
+    public uint FetchPostCount { get; private set; } = 0;
+    
     public async IAsyncEnumerable<GamePageDTO> GetFeedFromGalleryPage
         ([EnumeratorCancellation] CancellationToken cancellationToken)
     {
-        while (maxAvailablePost <= collectionManagerOption.MaxAvailablePost)
+        while (maxAvailablePost <= option.Value.MaxAvailablePost)
         {
-            var posts = await _gameSiteCrawler.GetPostsAsync(fetchPostCount,
-                collectionManagerOption.MaxAvailablePost,
+            var posts = await _gameSiteCrawler.GetPostsAsync(FetchPostCount,
+                option.Value.MaxAvailablePost,
                 cancellationToken);
-            fetchPostCount += (uint)posts.Count();
+            FetchPostCount += (uint)posts.Count();
             posts = FilterMarkedGame(posts);
 
             await foreach (var item in _gameSiteCrawler.GetGamePagesAsync(posts,

@@ -16,14 +16,8 @@ namespace CollectionManager.WinUI.Pages
         private readonly FeedPageViewModel viewModel;
         public FeedPage()
         {
-            this.Unloaded += MainPage_Unloaded;
             viewModel = App.GetService<FeedPageViewModel>();
             this.InitializeComponent();
-        }
-
-        private void MainPage_Unloaded(object sender, RoutedEventArgs e)
-        {
-           viewModel.CancellationToken = new CancellationToken(true);
         }
     }
 }

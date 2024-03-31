@@ -15,6 +15,9 @@
         <core:EventTriggerBehavior EventName="Loading">
             <core:InvokeCommandAction Command="{x:Bind Path=viewModel.LoadingCommand}" />
         </core:EventTriggerBehavior>
+        <core:EventTriggerBehavior EventName="Unloaded">
+            <core:InvokeCommandAction Command="{x:Bind Path=viewModel.UnloadedCommand}" />
+        </core:EventTriggerBehavior>
     </interactivity:Interaction.Behaviors>
     <Grid>
         <Grid
