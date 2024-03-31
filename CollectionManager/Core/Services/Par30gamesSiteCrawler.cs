@@ -7,9 +7,11 @@ using CollectionManager.Core.Utilities;
 using Flurl.Http;
 using Humanizer;
 using Microsoft.Extensions.Logging;
+using System;
 using System.Globalization;
 using System.Runtime.CompilerServices;
 using System.Text.RegularExpressions;
+using System.Threading;
 namespace CollectionManager.Core.Services;
 
 public partial class Par30gamesSiteCrawler(ILogger<Par30gamesSiteCrawler> logger) : IGameSiteCrawler
@@ -19,26 +21,51 @@ public partial class Par30gamesSiteCrawler(ILogger<Par30gamesSiteCrawler> logger
     private const string seachUrl = baseUrl + "/page/1/?s=دانلود+{0}+pc";
     private const byte maxPostPerPage = 8;
 
-    public uint CrawledPostCount { get; private set; }
-
-    public async IAsyncEnumerable<GamePageDTO> GetFeedAsync(uint skipPostCount, uint takePostCount,
+    public async Task<IEnumerable<PostDTO>> GetPostsAsync(uint skip, uint take,
         CancellationToken cancellationToken)
     {
-        IBrowsingContext context = AngleSharpFactory.CreateDefault();
-        var skipPage = skipPostCount / maxPostPerPage;
-        var uri = string.Format(feedUrl, ++skipPage);
-        var stringDocument = await uri.GetStringAsync(cancellationToken: cancellationToken);
-        var document = await context.OpenAsync(x => x.Content(stringDocument), cancellationToken);
-        var Articles = GetArticles(document);
-        CrawledPostCount += (uint)Articles.Count();
-        await foreach (var item in GetGamePagesLinkAsync(Articles.ToArray()))
+        var skipPage = skip / maxPostPerPage;
+        Uri uri = new(string.Format(feedUrl, ++skipPage));
+        var posts = await GetPostsAsync(uri, cancellationToken);
+        var gamePage = posts.Select(x => new PostDTO
         {
-            yield return item;
+            URL = x,
+            Name = GetNameFromURL(x),
+        });
+        return gamePage;
+    }
+    public async IAsyncEnumerable<GamePageDTO> GetGamePagesAsync(IEnumerable<PostDTO> posts,
+        [EnumeratorCancellation] CancellationToken cancellationToken = default)
+    {
+        IBrowsingContext context = AngleSharpFactory.CreateDefault();
+        foreach (var post in posts)
+        {
+            GamePageDTO gamepage = new();
+            try
+            {
+                gamepage = await GetGamePageAsync(post, context, cancellationToken);
+            }
+            catch (NotFundHtmlSectionException e)
+            {
+                logger.LogError(e, "");
+                continue;
+            }
+            catch
+            {
+                throw;
+            }
+            yield return gamepage;
         }
     }
+
     public Task<GamePageDTO> GetPageAsync(Uri uri)
     {
-        return GetGamePageLinkAsync(uri);
+        PostDTO post  = new() 
+        { 
+            URL = uri,
+            Name = GetNameFromURL(uri),
+        };
+        return GetGamePageAsync(post);
     }
     public async Task<IEnumerable<GamePageDTO>> GetSearchSuggestionAsync(string query)
     {
@@ -46,7 +73,7 @@ public partial class Par30gamesSiteCrawler(ILogger<Par30gamesSiteCrawler> logger
         var uri = string.Format(seachUrl, query);
         var htmlDocument = await uri.GetStringAsync();
         var document = await context.OpenAsync(x => x.Content(htmlDocument));
-        var Articles = GetArticles(document).Select(uir =>
+        var Articles = ParsePosts(document).Select(uir =>
         {
             return new GamePageDTO
             {
@@ -58,53 +85,55 @@ public partial class Par30gamesSiteCrawler(ILogger<Par30gamesSiteCrawler> logger
     }
 
 
-    private IEnumerable<Uri> GetArticles(IDocument document)
-    {
-        var Articles = document.QuerySelectorAll(".post.icon-steam");
-        if (Articles.Length != 0)
-            return Articles.Select(GetUri);
-        else throw new NotFundHtmlSectionException();
-    }
-    private async IAsyncEnumerable<GamePageDTO> GetGamePagesLinkAsync(IEnumerable<Uri> uriArticles,
-        [EnumeratorCancellation] CancellationToken cancellationToken = default)
-    {
-        IBrowsingContext context = AngleSharpFactory.CreateDefault();
-        foreach (var uri in uriArticles)
-        {
-            var gamepage = await GetGamePageLinkAsync(uri, context, cancellationToken);
-            yield return gamepage;
-        }
-    }
-    private async Task<GamePageDTO> GetGamePageLinkAsync(Uri uri, IBrowsingContext? context = null,
-        CancellationToken cancellationToken = default)
+
+
+
+    private async Task<IEnumerable<Uri>> GetPostsAsync(Uri uri, CancellationToken cancellationToken)
     {
         try
         {
-            context ??= AngleSharpFactory.CreateDefault();
-            var pageContentHtml = await uri.GetStringAsync(cancellationToken: cancellationToken);
-            var document = await context.OpenAsync(x => x.Content(pageContentHtml));
-            return new GamePageDTO()
-            {
-                URL = uri,
-                Name = GetNormalizeName(document),
-                Thumbnail = GetThumbnail(document),
-                PublishDate = GetDateTime(document),
-                CoverLink = GetGameCover(document),
-                Summery = GetSummery(document),
-                GalleryLink = GetGalleryLink(document),
-                DownloadLink = GetDownloadLink(document),
-            };
+            IBrowsingContext context = AngleSharpFactory.CreateDefault();
+            var stringDocument = await uri.GetStringAsync(cancellationToken: cancellationToken);
+            var document = await context.OpenAsync(x => x.Content(stringDocument), cancellationToken);
+            var Articles = ParsePosts(document);
+            return Articles;
         }
-        catch (NotFundHtmlSectionException)
+        catch(NotFundHtmlSectionException e)
         {
-            logger.LogError("Exception", uri);
-            throw;
+            logger.LogWarning(e, "");
+            return new List<Uri>();
         }
         catch
         {
             throw;
         }
     }
+    private IEnumerable<Uri> ParsePosts(IDocument document)
+    {
+        var Articles = document.QuerySelectorAll(".post.icon-steam");
+        if (Articles.Length != 0)
+            return Articles.Select(GetUri);
+        else throw new NotFundHtmlSectionException();
+    }
+    private async Task<GamePageDTO> GetGamePageAsync(PostDTO post, IBrowsingContext? context = null,
+        CancellationToken cancellationToken = default)
+    {
+        context ??= AngleSharpFactory.CreateDefault();
+        var pageContentHtml = await post.URL.GetStringAsync(cancellationToken: cancellationToken);
+        var document = await context.OpenAsync(x => x.Content(pageContentHtml), cancellationToken);
+        return new GamePageDTO()
+        {
+            URL = post.URL,
+            Name = post.Name,
+            Thumbnail = GetThumbnail(document),
+            PublishDate = GetDateTime(document),
+            CoverLink = GetGameCover(document),
+            Summery = GetSummery(document),
+            GalleryLink = GetGalleryLink(document),
+            DownloadLink = GetDownloadLink(document),
+        };
+    }
+
 
     private string GetSummery(IDocument document)
     {
@@ -127,26 +156,6 @@ public partial class Par30gamesSiteCrawler(ILogger<Par30gamesSiteCrawler> logger
         stringDatetime[1] = ConstContainer.PersianMonths.First(x => x.Key.Equals(stringDatetime[1])).Value.ToString();
         var intDatetime = stringDatetime.Where(x => !string.IsNullOrEmpty(x)).Select(int.Parse).ToArray();
         return new DateOnly(intDatetime[2], intDatetime[1], intDatetime[0], new PersianCalendar());
-    }
-    private string GetNormalizeName(IDocument node)
-    {
-        try
-        {
-            var postHeaderNode = node.QuerySelector(".post-content > h2") ?? throw new NotFundHtmlSectionException();
-            var rawName = postHeaderNode.TextContent;
-            var gameName = RegexHelper.TakeEnglishCharacterAndNumberFromPersian(rawName);
-            gameName = RegexHelper.ConvertRomanNumberToEnglish_Under40(gameName);
-            return NameNomalize(gameName);
-        }
-        catch (NotFundHtmlSectionException)
-        {
-            throw;
-        }
-        catch (Exception e)
-        {
-            logger.LogError(e, "ex");
-            throw;
-        }
     }
     private Uri? GetGameCover(IDocument document)
     {
@@ -228,30 +237,27 @@ public partial class Par30gamesSiteCrawler(ILogger<Par30gamesSiteCrawler> logger
     }
     private string GetNameFromURL(Uri url)
     {
-        var splitedUrl = url.ToString().Split('/').ToArray();
-        var title = splitedUrl.ElementAt(splitedUrl.Length - 2);
-        title = title.Replace('-', ' ');
-        var result = GetGameNameFromURL().Match(title);
-        if (result.Groups.Count > 2)
-            throw new Exception();
-        var gameName = RegexHelper.ConvertRomanNumberToEnglish_Under40(result.Groups[1].Value);
+        var rawTitle = url.Segments[2].Replace("/", "");
+        var gameName = GetGameNameFromURL(rawTitle);
         return NameNomalize(gameName);
     }
     private string NameNomalize(string name)
     {
         var normalizedName = name.Humanize(LetterCasing.Title);
-        normalizedName = normalizedName.Replace(" S ", " ");
-        var splitedName = name.Split('’');
-        if (splitedName.Length > 1)
-        {
-            for (int i = 0; i < splitedName.Length; i += 2)
-                normalizedName = normalizedName.Replace(splitedName[i], splitedName[i] + "’s");
-        }
         return normalizedName;
     }
 
-    [GeneratedRegex("^download ([A-Za-z0-9’ ]*) for pc$")]
-    private static partial Regex GetGameNameFromURL();
+    [GeneratedRegex(@"^download-([A-Za-z0-9-]*)-for-pc$")]
+    private static partial Regex GetGameNameFromURLPattern();
+    private string GetGameNameFromURL(string rawName)
+    {
+        var result = GetGameNameFromURLPattern().Match(rawName);
+        if (result.Groups.Count > 2)
+            throw new RegexProblemException();
+        rawName = result.Groups[1].Value.Replace("-", " ");
+        var name = RegexHelper.ConvertRomanNumberToEnglish_Under40(rawName);
+        return name;
+    }
     private Uri GetThumbnail(IDocument document)
     {
         var postHeaderNode = document.QuerySelector(".review > div.pic > img") ?? throw new Exception();

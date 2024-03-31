@@ -17,8 +17,13 @@ public class SiteManager(IGameSiteCrawler _gameSiteCrawler, IOptions<CollectionM
     {
         while (maxAvailablePost <= collectionManagerOption.MaxAvailablePost)
         {
-            await foreach (var item in _gameSiteCrawler.GetFeedAsync(fetchPostCount,
+            var posts = await _gameSiteCrawler.GetPostsAsync(fetchPostCount,
                 collectionManagerOption.MaxAvailablePost,
+                cancellationToken);
+            fetchPostCount += (uint)posts.Count();
+            posts = FilterMarkedGame(posts);
+
+            await foreach (var item in _gameSiteCrawler.GetGamePagesAsync(posts,
                 cancellationToken))
             {
                 await DefineGameType(item);
@@ -28,7 +33,6 @@ public class SiteManager(IGameSiteCrawler _gameSiteCrawler, IOptions<CollectionM
                     yield return item;
                 }
             }
-            fetchPostCount = _gameSiteCrawler.CrawledPostCount;
         }
         maxAvailablePost = 0;
     }
@@ -81,14 +85,14 @@ public class SiteManager(IGameSiteCrawler _gameSiteCrawler, IOptions<CollectionM
 
     private async Task AddToCollection(GamePageDTO gamePageDTO, MarkedType type)
     {
-        var isDuplicated = await context.Games.FirstOrDefaultAsync(x => x.Name.Equals(NameNormalizer(gamePageDTO.Name)));
+        var isDuplicated = await context.Games.FirstOrDefaultAsync(x => x.Name.Equals(DatabaseNameNormalizer(gamePageDTO.Name)));
 
         if (isDuplicated is null)
         {
             await context.Games.AddAsync(new GameSet
             {
                 MarkedType = type,
-                Name = NameNormalizer(gamePageDTO.Name),
+                Name = DatabaseNameNormalizer(gamePageDTO.Name),
                 Uri = gamePageDTO.URL,
                 Thumbnail = gamePageDTO.Thumbnail,
             });
@@ -98,19 +102,17 @@ public class SiteManager(IGameSiteCrawler _gameSiteCrawler, IOptions<CollectionM
     }
     private async Task DefineGameType(GamePageDTO gamePage)
     {
-        var gameGroup = await context.Games.FirstOrDefaultAsync(x => x.Name.Equals(NameNormalizer(gamePage.Name)));
+        var gameGroup = await context.Games.FirstOrDefaultAsync(x => x.Name.Equals(DatabaseNameNormalizer(gamePage.Name)));
         gamePage.MarkedType = gameGroup is null ? MarkedType.New : gameGroup.MarkedType;
     }
-    private string NameNormalizer(string name)
+    private string DatabaseNameNormalizer(string name)
     {
         return name.Humanize(LetterCasing.LowerCase);
     }
 
-    //private void FilterMarkedGame(ref IEnumerable<GamePageDto> gamePages)
-    //{
-    //    var sawGameList = _context.Set<GameSet>().AsQueryable();
-    //    List<string> tempGame = gamePages.Select(x => x.Name).ToList();
-    //    var SawGameList = sawGameList.Where(x => tempGame.Any(y => y == x.Name)).ToList();
-    //    gamePages = gamePages.ExceptBy(SawGameList.Select(x => x.Name), x => x.Name);
-    //}
+    private IEnumerable<PostDTO> FilterMarkedGame(IEnumerable<PostDTO> posts)
+    {
+        var sawGameList = context.Games.AsQueryable();
+        return posts.ExceptBy(sawGameList.Select(x=>x.Name), x => DatabaseNameNormalizer(x.Name));
+    }
 }
