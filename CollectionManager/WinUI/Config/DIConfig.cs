@@ -44,7 +44,7 @@ internal class DIConfig
     }
     private static void ViewModels(IServiceCollection services)
     {
-        services.AddTransient<FeedViewModel>();
+        services.AddTransient<FeedPageViewModel>();
         services.AddTransient<ContentDisplayViewModel>();
         services.AddTransient<ShellViewModel>();
         services.AddTransient<SearchPageViewModel>();

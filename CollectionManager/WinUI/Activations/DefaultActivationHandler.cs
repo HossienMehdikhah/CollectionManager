@@ -12,7 +12,7 @@ public class DefaultActivationHandler(INavigationService _navigationService) : A
 
     protected async override Task HandleInternalAsync(LaunchActivatedEventArgs args)
     {
-        _navigationService.NavigateTo(typeof(FeedViewModel).FullName!, args.Arguments);
+        _navigationService.NavigateTo(typeof(FeedPageViewModel).FullName!, args.Arguments);
         await Task.CompletedTask;
     }
 }
