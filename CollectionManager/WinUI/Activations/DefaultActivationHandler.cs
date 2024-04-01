@@ -3,7 +3,8 @@ using CollectionManager.WinUI.ViewModels;
 using Microsoft.UI.Xaml;
 namespace CollectionManager.WinUI.Activations;
 
-public class DefaultActivationHandler(INavigationService _navigationService) : ActivationHandler<LaunchActivatedEventArgs>
+public class DefaultActivationHandler(INavigationService _navigationService) 
+    : ActivationHandler<LaunchActivatedEventArgs>
 {
     protected override bool CanHandleInternal(LaunchActivatedEventArgs args)
     {

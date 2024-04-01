@@ -69,16 +69,16 @@ public class SiteManager(IGameSiteCrawler _gameSiteCrawler, IOptions<CollectionM
         await context.SaveChangesAsync();
         gamePageDTO.MarkedType = MarkedType.EarlyAccess;
     }
-    public async Task<IEnumerable<GamePageDTO>> GetGameFromDatabase(MarkedType markedType)
+    public IQueryable<GamePageDTO> GetGameFromDatabase(MarkedType markedType)
     {
-        var data = await context.Games.Where(x => x.MarkedType == markedType).ToListAsync();
-        return data.Select(x=> new GamePageDTO 
-        { 
-            Name = x.Name,
-            URL = x.Uri,
-            MarkedType = x.MarkedType,
-            Thumbnail = x.Thumbnail,
-        });
+        return context.Games.AsQueryable().Where(x => x.MarkedType == markedType)
+            .Select(x=> new GamePageDTO 
+            { 
+                Name = x.Name,
+                URL = x.Uri,
+                MarkedType = x.MarkedType,
+                Thumbnail = x.Thumbnail,
+            });
     }
 
 

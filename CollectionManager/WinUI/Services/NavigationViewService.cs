@@ -4,7 +4,8 @@ using CollectionManager.WinUI.Helprs;
 using Microsoft.UI.Xaml.Controls;
 namespace CollectionManager.WinUI.Services;
 
-public class NavigationViewService(INavigationService _navigationService, IPageService _pageService) : INavigationViewService
+public class NavigationViewService(INavigationService _navigationService,
+    IPageService _pageService) : INavigationViewService
 {
     private NavigationView? _navigationView;
     public IList<object>? MenuItems => _navigationView?.MenuItems;
@@ -17,7 +18,8 @@ public class NavigationViewService(INavigationService _navigationService, IPageS
         _navigationView.BackRequested += OnBackRequested;
         _navigationView.ItemInvoked += OnItemInvoked;
     }
-    private void OnBackRequested(NavigationView sender, NavigationViewBackRequestedEventArgs args) => _navigationService.GoBack();
+    private void OnBackRequested(NavigationView sender, NavigationViewBackRequestedEventArgs args) 
+        => _navigationService.GoBack();
     private void OnItemInvoked(NavigationView sender, NavigationViewItemInvokedEventArgs args)
     {
         if (args.IsSettingsInvoked)
@@ -30,7 +32,7 @@ public class NavigationViewService(INavigationService _navigationService, IPageS
 
             if (selectedItem?.GetValue(NavigationHelper.NavigateToProperty) is string pageKey)
             {
-                _navigationService.NavigateTo(pageKey);
+                _navigationService.NavigateTo(pageKey, args.InvokedItem);
             }
         }
     }

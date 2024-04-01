@@ -15,7 +15,7 @@ public class PageService : IPageService
     {
         Configure<FeedPageViewModel, FeedPage>();
         Configure<SearchPageViewModel, SearchPage>();
-        Configure<ListedPageViewModel, ListadPage>();
+        Configure<ListedViewModel, ListedView>();
     }
     public Type GetPageType(string key)
     {

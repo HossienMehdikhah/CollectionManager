@@ -19,9 +19,9 @@
             <NavigationViewItem helprs:NavigationHelper.NavigateTo="CollectionManager.WinUI.ViewModels.FeedPageViewModel" Content="Feeds" />
             <NavigationViewItem helprs:NavigationHelper.NavigateTo="CollectionManager.WinUI.ViewModels.SearchPageViewModel" Content="Search" />
             <NavigationViewItemSeparator />
-            <NavigationViewItem helprs:NavigationHelper.NavigateTo="CollectionManager.WinUI.ViewModels.ListedPageViewModel" Content="Marked" />
+            <NavigationViewItem helprs:NavigationHelper.NavigateTo="CollectionManager.WinUI.ViewModels.ListedViewModel" Content="Marked" />
         </NavigationView.MenuItems>
-        <Grid>
+        <Grid Background="LightGray">
             <Frame x:Name="NavigationFrame" />
         </Grid>
     </NavigationView>

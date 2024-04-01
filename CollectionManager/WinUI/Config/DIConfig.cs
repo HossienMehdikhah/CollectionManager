@@ -18,7 +18,7 @@ using Microsoft.UI.Xaml;
 using WinUI;
 namespace CollectionManager.WinUI.Config;
 
-internal class DIConfig
+public class DIConfig
 {
     public static IServiceCollection Config(IServiceCollection services)
     {
@@ -37,7 +37,7 @@ internal class DIConfig
         services.AddTransient<ShellPage>();
         services.AddTransient<FeedPage>();
         services.AddTransient<SearchPage>();
-        services.AddTransient<ListadPage>();
+        services.AddTransient<ListedView>();
     }
     private static void UserControls(IServiceCollection services)
     {
@@ -49,7 +49,7 @@ internal class DIConfig
         services.AddTransient<ContentDisplayViewModel>();
         services.AddTransient<ShellViewModel>();
         services.AddTransient<SearchPageViewModel>();
-        services.AddTransient<ListedPageViewModel>();
+        services.AddTransient<ListedViewModel>();
     }
     private static void Managers(IServiceCollection services)
     {

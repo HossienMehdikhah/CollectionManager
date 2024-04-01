@@ -112,7 +112,7 @@ public partial class ContentDisplayViewModel(SiteManager siteManager) : Observab
 
     public Func<Uri, Task> ShowImageAsBiggerSizeAction { get; set; } = async (uri) => await Task.CompletedTask;
     public Func<Task> ShowDownloadSelectorAction { get; set; }
-    public Func<Task> DownloadLinkSelectionConfirmAction { get; set; }
+    public Action DownloadLinkSelectionConfirmAction { get; set; }
     public Action<TreeViewSelectionChangedEventArgs> TreeViewSelectionChangeAction { get; set; }
     public void ShowDownloadLink_SelectionChanged(TreeView sender, TreeViewSelectionChangedEventArgs args)
     {

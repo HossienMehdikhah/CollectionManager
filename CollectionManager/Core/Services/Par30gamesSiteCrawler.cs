@@ -57,7 +57,6 @@ public partial class Par30gamesSiteCrawler(ILogger<Par30gamesSiteCrawler> logger
             yield return gamepage;
         }
     }
-
     public Task<GamePageDTO> GetPageAsync(Uri uri)
     {
         PostDTO post  = new() 

@@ -21,7 +21,6 @@
     </interactivity:Interaction.Behaviors>
     <Grid>
         <Grid
-            Background="LightGray"
             Canvas.ZIndex="10"
             Opacity="0.8"
             Visibility="{x:Bind viewModel.ProgressRingVisibility, Mode=OneWay}">

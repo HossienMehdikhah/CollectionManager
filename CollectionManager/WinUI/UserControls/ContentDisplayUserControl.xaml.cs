@@ -24,7 +24,7 @@ public sealed partial class ContentDisplayUserControl : UserControl
         {
             ViewModel.ShowDownloadLink_SelectionChanged(showDownloadLink, args);
         };
-        ViewModel.DownloadLinkSelectionConfirmAction = async () =>
+        ViewModel.DownloadLinkSelectionConfirmAction = () =>
         {
             showDownloadLink.SelectedItems.Where(x => x is DownloadURIDTO);
         };
