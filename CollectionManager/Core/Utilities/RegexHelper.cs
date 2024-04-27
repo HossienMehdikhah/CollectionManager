@@ -1,5 +1,4 @@
-﻿using Humanizer;
-using System.Text.RegularExpressions;
+﻿using System.Text.RegularExpressions;
 
 namespace CollectionManager.Core.Utilities;
 
@@ -16,25 +15,24 @@ public static partial class RegexHelper
 
     public static string RemoveWhiteSpace(string input)
     {
-       return RemoveWhiteSpacePattern().Replace(input,"");
+        return RemoveWhiteSpacePattern().Replace(input, "");
     }
     public static string TakeNumber(string input)
     {
-        var temp =RemoveWhiteSpace(input);
-        return TakeNumberPattern().Matches(temp).First(x=> !string.IsNullOrWhiteSpace(x.Value)).Value;
+        var temp = RemoveWhiteSpace(input);
+        return TakeNumberPattern().Matches(temp).First(x => !string.IsNullOrWhiteSpace(x.Value)).Value;
     }
     public static string TakeBetweenQuote(string input)
     {
-        return TakeBetweenQuotePattern().Matches(input).First().Value.Replace("\"","");
+        return TakeBetweenQuotePattern().Matches(input).First().Value.Replace("\"", "");
     }
     public static string ConvertRomanNumberToEnglish_Under40(string input)
     {
         string gameName = string.Empty;
-        input = input.ToUpper();
         foreach (var item in input.Split(' '))
         {
-            if (IsRomanNumber_Under40(item))
-                gameName += item.FromRoman().ToString() + " ";
+            if (IsRomanNumber_Under40(item.ToUpper()))
+                gameName += item.FromRoman() + " ";
             else gameName += item + " ";
         }
         return gameName.TrimEnd();

@@ -8,16 +8,17 @@ namespace CollectionManager.WinUI.Views;
 
 public sealed partial class ListedView : Page
 {
-    private readonly ListedViewModel viewModel;
+    public ListedViewModel ViewModel { get; private set; }
     public ListedView()
     {
-        viewModel = App.GetService<ListedViewModel>();
+        ViewModel = App.GetService<ListedViewModel>();
         this.InitializeComponent();
     }
 
     protected override void OnNavigatedTo(NavigationEventArgs e)
     {
         base.OnNavigatedTo(e);
-        viewModel.MarkedType = Enum.Parse<MarkedType>((string)e.Parameter);
+        ViewModel.MarkedType = Enum.Parse<MarkedType>((string)e.Parameter);
+        test.ItemsSource = ViewModel.GamePages;
     }
 }

@@ -1,6 +1,6 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 using CollectionManager.WinUI.Contracts;
-using CollectionManager.WinUI.Helprs;
+using CollectionManager.WinUI.Utilities;
 using Microsoft.UI.Xaml.Controls;
 namespace CollectionManager.WinUI.Services;
 
@@ -18,7 +18,7 @@ public class NavigationViewService(INavigationService _navigationService,
         _navigationView.BackRequested += OnBackRequested;
         _navigationView.ItemInvoked += OnItemInvoked;
     }
-    private void OnBackRequested(NavigationView sender, NavigationViewBackRequestedEventArgs args) 
+    private void OnBackRequested(NavigationView sender, NavigationViewBackRequestedEventArgs args)
         => _navigationService.GoBack();
     private void OnItemInvoked(NavigationView sender, NavigationViewItemInvokedEventArgs args)
     {
@@ -29,10 +29,11 @@ public class NavigationViewService(INavigationService _navigationService,
         else
         {
             var selectedItem = args.InvokedItemContainer as NavigationViewItem;
-
             if (selectedItem?.GetValue(NavigationHelper.NavigateToProperty) is string pageKey)
             {
-                _navigationService.NavigateTo(pageKey, args.InvokedItem);
+                _navigationService.NavigateTo(pageKey,
+                    parameter: args.InvokedItem,
+                    clearNavigation: true);
             }
         }
     }

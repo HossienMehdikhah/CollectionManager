@@ -4,6 +4,8 @@ using CollectionManager.Core.Models;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Microsoft.UI.Xaml.Controls;
+using Microsoft.UI.Xaml.Media;
+using Microsoft.UI.Xaml.Media.Imaging;
 
 namespace CollectionManager.WinUI.ViewModels;
 
@@ -57,7 +59,6 @@ public partial class ContentDisplayViewModel(SiteManager siteManager) : Observab
     private bool isEralyAccesButtonChecked;
 
 
-
     [RelayCommand]
     private async Task AddToUpdateCollection()
     {
@@ -90,7 +91,8 @@ public partial class ContentDisplayViewModel(SiteManager siteManager) : Observab
     [RelayCommand]
     private async Task ShowImageAsBiggerSize(string selectedImageUri)
     {
-        await ShowImageAsBiggerSizeAction.Invoke(new Uri(selectedImageUri));
+        var uri = new Uri(selectedImageUri);
+        await ShowImageAsBiggerSizeAction.Invoke(uri);
     }
     [RelayCommand]
     private async Task ShowDownloadSelectorDialog()

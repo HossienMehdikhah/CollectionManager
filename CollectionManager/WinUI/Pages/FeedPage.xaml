@@ -10,21 +10,22 @@
     xmlns:localsys="using:System"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:usercontrols="using:CollectionManager.WinUI.UserControls"
+    xmlns:utilities="using:CollectionManager.WinUI.Utilities"
     mc:Ignorable="d">
     <interactivity:Interaction.Behaviors>
         <core:EventTriggerBehavior EventName="Loading">
-            <core:InvokeCommandAction Command="{x:Bind Path=viewModel.LoadingCommand}" />
+            <core:InvokeCommandAction Command="{x:Bind Path=ViewModel.LoadingCommand}" />
         </core:EventTriggerBehavior>
         <core:EventTriggerBehavior EventName="Unloaded">
-            <core:InvokeCommandAction Command="{x:Bind Path=viewModel.UnloadedCommand}" />
+            <core:InvokeCommandAction Command="{x:Bind Path=ViewModel.UnloadedCommand}" />
         </core:EventTriggerBehavior>
     </interactivity:Interaction.Behaviors>
     <Grid>
         <Grid
             Canvas.ZIndex="10"
             Opacity="0.8"
-            Visibility="{x:Bind viewModel.ProgressRingVisibility, Mode=OneWay}">
-            <ProgressRing x:Name="progressRing" IsActive="{x:Bind viewModel.ProgressRingIsActive, Mode=OneWay}" />
+            Visibility="{x:Bind ViewModel.ProgressRingVisibility, Mode=OneWay}">
+            <ProgressRing x:Name="progressRing" IsActive="{x:Bind ViewModel.ProgressRingIsActive, Mode=OneWay}" />
         </Grid>
         <Grid>
             <Grid.Resources>
@@ -50,19 +51,36 @@
                     x:Name="PreviousButton"
                     Grid.Column="0"
                     Margin="10,5,0,5"
-                    Command="{x:Bind viewModel.PreviousButtonEventCommand}"
-                    Content="Previous" />
+                    Command="{x:Bind ViewModel.PreviousButtonEventCommand}"
+                    Content="Previous"
+                    IsTabStop="False">
+                    <Button.KeyboardAccelerators>
+                        <utilities:CommandKeyboardAccelerator
+                            Key="Left"
+                            Command="{x:Bind ViewModel.PreviousButtonEventCommand}"
+                            Modifiers="Control" />
+                    </Button.KeyboardAccelerators>
+                </Button>
                 <Button
                     x:Name="NextButton"
                     Grid.Column="3"
                     Margin="0,5,10,5"
-                    Command="{x:Bind viewModel.NextButtonEventCommand}"
-                    Content="Next" />
+                    AccessKey="N"
+                    Command="{x:Bind ViewModel.NextButtonEventCommand}"
+                    Content="Next"
+                    IsTabStop="False">
+                    <Button.KeyboardAccelerators>
+                        <utilities:CommandKeyboardAccelerator
+                            Key="Right"
+                            Command="{x:Bind ViewModel.NextButtonEventCommand}"
+                            Modifiers="Control" />
+                    </Button.KeyboardAccelerators>
+                </Button>
             </Grid>
             <usercontrols:ContentDisplayUserControl
                 Grid.Row="1"
                 Margin="10,5,10,10"
-                CurrentPage="{x:Bind viewModel.CurrentPage, Mode=OneWay}" />
+                CurrentPage="{x:Bind ViewModel.CurrentPage, Mode=OneWay}" />
         </Grid>
     </Grid>
 </Page>

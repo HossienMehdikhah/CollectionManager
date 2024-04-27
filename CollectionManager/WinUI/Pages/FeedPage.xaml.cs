@@ -13,10 +13,10 @@ namespace CollectionManager.WinUI.Pages
     /// </summary>
     public sealed partial class FeedPage : Page
     {
-        private readonly FeedPageViewModel viewModel;
+        public FeedPageViewModel ViewModel { get; }
         public FeedPage()
         {
-            viewModel = App.GetService<FeedPageViewModel>();
+            ViewModel = App.GetService<FeedPageViewModel>();
             this.InitializeComponent();
         }
     }

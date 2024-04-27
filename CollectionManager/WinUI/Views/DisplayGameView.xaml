@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<Page
+    x:Class="CollectionManager.WinUI.Views.DisplayGameView"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:core="using:Microsoft.Xaml.Interactions.Core"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:interactivity="using:Microsoft.Xaml.Interactivity"
+    xmlns:local="using:CollectionManager.WinUI.Views"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:usercontrols="using:CollectionManager.WinUI.UserControls"
+    mc:Ignorable="d">
+    <interactivity:Interaction.Behaviors>
+        <core:EventTriggerBehavior EventName="Loading">
+            <core:InvokeCommandAction Command="{x:Bind Path=viewModel.LoadingCommand}" />
+        </core:EventTriggerBehavior>
+    </interactivity:Interaction.Behaviors>
+    <Grid>
+        <Grid
+            Canvas.ZIndex="10"
+            Opacity="0.8"
+            Visibility="{x:Bind viewModel.ProgressRingVisibility, Mode=OneWay}">
+            <ProgressRing x:Name="progressRing" IsActive="{x:Bind viewModel.ProgressRingIsActive, Mode=OneWay}" />
+        </Grid>
+        <usercontrols:ContentDisplayUserControl Margin="10,5,10,10" CurrentPage="{x:Bind viewModel.CurrentPage, Mode=OneWay}" />
+    </Grid>
+</Page>

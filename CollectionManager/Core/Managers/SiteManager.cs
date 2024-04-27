@@ -1,6 +1,5 @@
 ﻿using CollectionManager.Core.Contracts.Services;
 using CollectionManager.Core.Models;
-using Humanizer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using System.Runtime.CompilerServices;
@@ -40,9 +39,11 @@ public class SiteManager(IGameSiteCrawler _gameSiteCrawler, IOptions<CollectionM
     {
         return _gameSiteCrawler.GetSearchSuggestionAsync(query);
     }
-    public Task<GamePageDTO> GetSpecificationPageAsync(Uri pageUri)
+    public async Task<GamePageDTO> GetSpecificationPageAsync(Uri pageUri)
     {
-        return _gameSiteCrawler.GetPageAsync(pageUri);
+        var gamePage = await _gameSiteCrawler.GetPageAsync(pageUri);
+        await DefineGameType(gamePage);
+        return gamePage;
     }
 
     public async Task AddToUpdateCollection(GamePageDTO gamePageDTO)
@@ -107,12 +108,13 @@ public class SiteManager(IGameSiteCrawler _gameSiteCrawler, IOptions<CollectionM
     }
     private string DatabaseNameNormalizer(string name)
     {
-        return name.Humanize(LetterCasing.LowerCase);
+        return name.ToLower();
     }
-
     private IEnumerable<PostDTO> FilterMarkedGame(IEnumerable<PostDTO> posts)
     {
         var sawGameList = context.Games.AsQueryable();
-        return posts.ExceptBy(sawGameList.Select(x=>x.Name), x => DatabaseNameNormalizer(x.Name));
+        var filtredPosts = posts.ExceptBy(sawGameList.Select(x=>x.Name),
+            x => DatabaseNameNormalizer(x.Name));
+        return filtredPosts;
     }
 }

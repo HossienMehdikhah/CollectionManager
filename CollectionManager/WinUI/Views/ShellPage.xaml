@@ -4,22 +4,45 @@
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-    xmlns:helprs="using:CollectionManager.WinUI.Helprs"
+    xmlns:helprs="using:CollectionManager.WinUI.Utilities"
     xmlns:local="using:CollectionManager.WinUI.Views"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d">
     <NavigationView
         x:Name="NavigationViewControl"
         Background="LightGray"
-        IsBackButtonVisible="Collapsed"
+        IsBackButtonVisible="{x:Bind ViewModel.CanGoBack, Mode=OneWay}"
+        IsBackEnabled="True"
         IsSettingsVisible="False"
+        IsTabStop="False"
         PaneDisplayMode="Top"
         SelectedItem="{x:Bind ViewModel.Selected, Mode=OneWay}">
         <NavigationView.MenuItems>
-            <NavigationViewItem helprs:NavigationHelper.NavigateTo="CollectionManager.WinUI.ViewModels.FeedPageViewModel" Content="Feeds" />
-            <NavigationViewItem helprs:NavigationHelper.NavigateTo="CollectionManager.WinUI.ViewModels.SearchPageViewModel" Content="Search" />
+            <NavigationViewItem
+                helprs:NavigationHelper.NavigateTo="CollectionManager.WinUI.ViewModels.FeedPageViewModel"
+                Content="Feeds"
+                IsTabStop="False" />
+            <NavigationViewItem
+                helprs:NavigationHelper.NavigateTo="CollectionManager.WinUI.ViewModels.SearchPageViewModel"
+                Content="Search"
+                IsTabStop="False" />
             <NavigationViewItemSeparator />
-            <NavigationViewItem helprs:NavigationHelper.NavigateTo="CollectionManager.WinUI.ViewModels.ListedViewModel" Content="Marked" />
+            <NavigationViewItem
+                helprs:NavigationHelper.NavigateTo="CollectionManager.WinUI.ViewModels.ListedViewModel"
+                Content="Marked"
+                IsTabStop="False" />
+            <NavigationViewItem
+                helprs:NavigationHelper.NavigateTo="CollectionManager.WinUI.ViewModels.ListedViewModel"
+                Content="EarlyAccess"
+                IsTabStop="False" />
+            <NavigationViewItem
+                helprs:NavigationHelper.NavigateTo="CollectionManager.WinUI.ViewModels.ListedViewModel"
+                Content="Update"
+                IsTabStop="False" />
+            <NavigationViewItem
+                helprs:NavigationHelper.NavigateTo="CollectionManager.WinUI.ViewModels.ListedViewModel"
+                Content="Seen"
+                IsTabStop="False" />
         </NavigationView.MenuItems>
         <Grid Background="LightGray">
             <Frame x:Name="NavigationFrame" />

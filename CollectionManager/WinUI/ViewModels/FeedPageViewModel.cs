@@ -1,5 +1,6 @@
 ﻿using CollectionManager.Core.Managers;
 using CollectionManager.Core.Models;
+using CollectionManager.Core.Utilities;
 using CollectionManager.WinUI.Singleton;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
@@ -49,7 +50,7 @@ public partial class FeedPageViewModel(SiteManager siteManager,
     [RelayCommand]
     private async Task NextButtonEvent()
     {
-        if (gamePageListIndex + 2 <= singleton.GamePageList.Count)
+        if (gamePageListIndex + 1 <= singleton.GamePageList.Count)
         {
             CurrentPage = singleton.GamePageList[++gamePageListIndex];
             if (!isBackgroundWorkerRunning 
@@ -58,6 +59,7 @@ public partial class FeedPageViewModel(SiteManager siteManager,
                 isBackgroundWorkerRunning = true;
                 await foreach (var gamePage in siteManager.GetFeedFromGalleryPage(CancellationToken))
                 {
+                    gamePage.Name = gamePage.Name.ToCapital();
                     singleton.GamePageList.Add(gamePage);
                 }
                 isBackgroundWorkerRunning = false;
@@ -72,7 +74,7 @@ public partial class FeedPageViewModel(SiteManager siteManager,
     [RelayCommand]
     private void PreviousButtonEvent()
     {
-        if (gamePageListIndex >= 0)
+        if (gamePageListIndex - 1 >= 0)
         {
             CurrentPage = singleton.GamePageList[--gamePageListIndex];
         }
@@ -87,11 +89,11 @@ public partial class FeedPageViewModel(SiteManager siteManager,
             isBackgroundWorkerRunning = true;
             await foreach (var gamePage in siteManager.GetFeedFromGalleryPage(CancellationToken))
             {
+                gamePage.Name = gamePage.Name.ToCapital();
                 singleton.GamePageList.Add(gamePage);
                 if (ProgressRingIsActive)
                 {
-                    gamePageListIndex++;
-                    CurrentPage = singleton.GamePageList.ElementAt(gamePageListIndex);
+                    CurrentPage = singleton.GamePageList.ElementAt(++gamePageListIndex);
                     DeactivateLoading();
                 }
             }

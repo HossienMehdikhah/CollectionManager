@@ -5,13 +5,10 @@ using CollectionManager.Core.Factories;
 using CollectionManager.Core.Models;
 using CollectionManager.Core.Utilities;
 using Flurl.Http;
-using Humanizer;
 using Microsoft.Extensions.Logging;
-using System;
 using System.Globalization;
 using System.Runtime.CompilerServices;
 using System.Text.RegularExpressions;
-using System.Threading;
 namespace CollectionManager.Core.Services;
 
 public partial class Par30gamesSiteCrawler(ILogger<Par30gamesSiteCrawler> logger) : IGameSiteCrawler
@@ -24,15 +21,22 @@ public partial class Par30gamesSiteCrawler(ILogger<Par30gamesSiteCrawler> logger
     public async Task<IEnumerable<PostDTO>> GetPostsAsync(uint skip, uint take,
         CancellationToken cancellationToken)
     {
-        var skipPage = skip / maxPostPerPage;
-        Uri uri = new(string.Format(feedUrl, ++skipPage));
-        var posts = await GetPostsAsync(uri, cancellationToken);
-        var gamePage = posts.Select(x => new PostDTO
+        try
         {
-            URL = x,
-            Name = GetNameFromURL(x),
-        });
-        return gamePage;
+            var skipPage = skip / maxPostPerPage;
+            Uri uri = new(string.Format(feedUrl, ++skipPage));
+            var posts = await GetPostsAsync(uri, cancellationToken);
+            var gamePage = posts.Select(x => new PostDTO
+            {
+                URL = x,
+                Name = GetNameFromURL(x),
+            });
+            return gamePage;
+        }
+        catch
+        {
+            throw;
+        }
     }
     public async IAsyncEnumerable<GamePageDTO> GetGamePagesAsync(IEnumerable<PostDTO> posts,
         [EnumeratorCancellation] CancellationToken cancellationToken = default)
@@ -238,24 +242,34 @@ public partial class Par30gamesSiteCrawler(ILogger<Par30gamesSiteCrawler> logger
     {
         var rawTitle = url.Segments[2].Replace("/", "");
         var gameName = GetGameNameFromURL(rawTitle);
-        return NameNomalize(gameName);
+        return gameName;
     }
-    private string NameNomalize(string name)
-    {
-        var normalizedName = name.Humanize(LetterCasing.Title);
-        return normalizedName;
-    }
+    
 
-    [GeneratedRegex(@"^download-([A-Za-z0-9-]*)-for-pc$")]
+    [GeneratedRegex("(?:download-)?" +
+        "(?:(?<gameName>[A-Za-z0-9-]*)-for-pc" +
+        "|(?<gameName>[A-Za-z0-9-]*)" +
+        "|(?<gameName>[A-Za-z0-9-]*)-pc)")]
     private static partial Regex GetGameNameFromURLPattern();
     private string GetGameNameFromURL(string rawName)
     {
-        var result = GetGameNameFromURLPattern().Match(rawName);
-        if (result.Groups.Count > 2)
-            throw new RegexProblemException();
-        rawName = result.Groups[1].Value.Replace("-", " ");
-        var name = RegexHelper.ConvertRomanNumberToEnglish_Under40(rawName);
-        return name;
+        try
+        {
+            var result = GetGameNameFromURLPattern()
+                .Matches(rawName)
+                .SelectMany(x => x.Groups.Values)
+                .Where(x => !string.IsNullOrEmpty(x.Value))
+                .First(x => x.Name == "gameName").Value
+                ;
+
+            result = result.Replace("-", " ");
+            var gameName = RegexHelper.ConvertRomanNumberToEnglish_Under40(result);
+            return gameName;
+        }
+        catch
+        {
+            throw;
+        }
     }
     private Uri GetThumbnail(IDocument document)
     {

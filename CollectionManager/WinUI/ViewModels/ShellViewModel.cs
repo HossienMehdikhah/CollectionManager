@@ -1,11 +1,15 @@
 ﻿using CollectionManager.WinUI.Contracts;
+using CollectionManager.WinUI.Utilities;
 using CommunityToolkit.Mvvm.ComponentModel;
+using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Navigation;
 
 namespace CollectionManager.WinUI.ViewModels;
 
 public partial class ShellViewModel : ObservableRecipient
 {
+    [ObservableProperty]
+    private NavigationViewBackButtonVisible canGoBack = NavigationViewBackButtonVisible.Collapsed;
     [ObservableProperty]
     private object? selected;
     public ShellViewModel(INavigationService navigationService, INavigationViewService navigationViewService)
@@ -32,8 +36,10 @@ public partial class ShellViewModel : ObservableRecipient
         //}
         var selectedItem = NavigationViewService.GetSelectedItem(e.SourcePageType);
         if (selectedItem != null)
-        {
+        {            
             Selected = selectedItem;
         }
+        CanGoBack = NavigationService.CanGoBack ? NavigationViewBackButtonVisible.Visible :
+                    NavigationViewBackButtonVisible.Collapsed;
     }
 }

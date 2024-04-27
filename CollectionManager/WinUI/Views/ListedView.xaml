@@ -15,16 +15,20 @@
         x:Name="test"
         IncrementalLoadingTrigger="Edge"
         IsItemClickEnabled="True"
-        ItemsSource="{x:Bind viewModel.GamePages, Mode=OneTime}"
         SelectionMode="None">
         <interactivity:Interaction.Behaviors>
             <core:EventTriggerBehavior EventName="ItemClick">
-                <core:InvokeCommandAction Command="{x:Bind Path=viewModel.ItemClickCommand}" />
+                <core:InvokeCommandAction Command="{x:Bind Path=ViewModel.ItemClickCommand}" />
             </core:EventTriggerBehavior>
         </interactivity:Interaction.Behaviors>
+        <ListView.Resources>
+            <Style TargetType="ScrollBar">
+                <Setter Property="Width" Value="50" />
+            </Style>
+        </ListView.Resources>
         <ListView.ItemTemplate>
             <DataTemplate x:DataType="models:GamePageDTO">
-                <Grid Height="150" Margin="10">
+                <Grid Height="100" Margin="10">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="auto" />
                         <ColumnDefinition Width="*" />

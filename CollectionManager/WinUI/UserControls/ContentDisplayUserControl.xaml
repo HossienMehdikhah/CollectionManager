@@ -78,28 +78,40 @@
                 Grid.Row="0"
                 DefaultLabelPosition="Right"
                 IsOpen="False">
-                <AppBarToggleButton IsChecked="{x:Bind ViewModel.IsUpdateButtonChecked, Mode=TwoWay}" Label="Update">
+                <AppBarToggleButton
+                    IsChecked="{x:Bind ViewModel.IsUpdateButtonChecked, Mode=TwoWay}"
+                    IsTabStop="False"
+                    Label="Update">
                     <interactivity:Interaction.Behaviors>
                         <core:EventTriggerBehavior EventName="Click">
                             <core:InvokeCommandAction Command="{x:Bind ViewModel.AddToUpdateCollectionCommand}" />
                         </core:EventTriggerBehavior>
                     </interactivity:Interaction.Behaviors>
                 </AppBarToggleButton>
-                <AppBarToggleButton IsChecked="{x:Bind ViewModel.IsMarkedButtonChecked, Mode=TwoWay}" Label="Marked">
+                <AppBarToggleButton
+                    IsChecked="{x:Bind ViewModel.IsMarkedButtonChecked, Mode=TwoWay}"
+                    IsTabStop="False"
+                    Label="Marked">
                     <interactivity:Interaction.Behaviors>
                         <core:EventTriggerBehavior EventName="Click">
                             <core:InvokeCommandAction Command="{x:Bind ViewModel.AddToMarkedCollectionCommand}" />
                         </core:EventTriggerBehavior>
                     </interactivity:Interaction.Behaviors>
                 </AppBarToggleButton>
-                <AppBarToggleButton IsChecked="{x:Bind ViewModel.IsSeenButtonChecked, Mode=TwoWay}" Label="Seen">
+                <AppBarToggleButton
+                    IsChecked="{x:Bind ViewModel.IsSeenButtonChecked, Mode=TwoWay}"
+                    IsTabStop="False"
+                    Label="Seen">
                     <interactivity:Interaction.Behaviors>
                         <core:EventTriggerBehavior EventName="Click">
                             <core:InvokeCommandAction Command="{x:Bind ViewModel.AddToSeenCollectionCommand}" />
                         </core:EventTriggerBehavior>
                     </interactivity:Interaction.Behaviors>
                 </AppBarToggleButton>
-                <AppBarToggleButton IsChecked="{x:Bind ViewModel.IsEralyAccesButtonChecked, Mode=TwoWay}" Label="EralyAcces">
+                <AppBarToggleButton
+                    IsChecked="{x:Bind ViewModel.IsEralyAccesButtonChecked, Mode=TwoWay}"
+                    IsTabStop="False"
+                    Label="EralyAcces">
                     <interactivity:Interaction.Behaviors>
                         <core:EventTriggerBehavior EventName="Click">
                             <core:InvokeCommandAction Command="{x:Bind ViewModel.AddToEarlyAccessCollectionCommand}" />
@@ -107,7 +119,7 @@
                     </interactivity:Interaction.Behaviors>
                 </AppBarToggleButton>
                 <AppBarSeparator />
-                <AppBarButton Label="Download">
+                <AppBarButton IsTabStop="False" Label="Download">
                     <interactivity:Interaction.Behaviors>
                         <core:EventTriggerBehavior EventName="Click">
                             <core:InvokeCommandAction Command="{x:Bind ViewModel.ShowDownloadSelectorDialogCommand}" />
@@ -130,6 +142,7 @@
                     Margin="0,0,0,4"
                     FontSize="25"
                     Foreground="Black"
+                    IsTabStop="False"
                     Text="{x:Bind ViewModel.CurrentPage.Name, Mode=OneWay}"
                     TextAlignment="Center"
                     TextWrapping="NoWrap" />

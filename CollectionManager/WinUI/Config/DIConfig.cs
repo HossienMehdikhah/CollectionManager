@@ -38,6 +38,7 @@ public class DIConfig
         services.AddTransient<FeedPage>();
         services.AddTransient<SearchPage>();
         services.AddTransient<ListedView>();
+        services.AddTransient<DisplayGameView>();
     }
     private static void UserControls(IServiceCollection services)
     {
@@ -50,6 +51,7 @@ public class DIConfig
         services.AddTransient<ShellViewModel>();
         services.AddTransient<SearchPageViewModel>();
         services.AddTransient<ListedViewModel>();
+        services.AddTransient<DisplayGameViewModel>();
     }
     private static void Managers(IServiceCollection services)
     {
