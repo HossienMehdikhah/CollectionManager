@@ -10,7 +10,6 @@ namespace CollectionManager.WinUI.ViewModels;
 
 public partial class SearchPageViewModel(SiteManager siteManager) : ObservableObject
 {
-    private IEnumerable<GamePageDTO> _suggestedGames = [];
     [ObservableProperty]
     private GamePageDTO currentPage = new();
     [ObservableProperty]
@@ -18,39 +17,39 @@ public partial class SearchPageViewModel(SiteManager siteManager) : ObservableOb
     [ObservableProperty]
     private Visibility progressRingVisibility = Visibility.Collapsed;
 
-    public string AutoSuggestionSelectedText { get; set; } = string.Empty;
-    public ObservableCollection<string> ComboSuggestion = [];
-
-
+   
     [RelayCommand]
-    private async Task OnTextChanged(AutoSuggestBoxTextChangedEventArgs args)
+    private async Task Search(string searchQuery)
     {
-        if (args.Reason == AutoSuggestionBoxTextChangeReason.UserInput && !string.IsNullOrWhiteSpace(AutoSuggestionSelectedText))
-        {
-            ComboSuggestion.Clear();
-            _suggestedGames = await siteManager.GetSearchSuggestion(AutoSuggestionSelectedText);
+        //if (!string.IsNullOrWhiteSpace(searchQuery)
+        //    && !searchQuery.Equals("notfound"))
+        //{
+        //    ProgressRingIsActive = true;
+        //    ProgressRingVisibility = Visibility.Visible;
+        //    GamePageDTO? itemfounded = null;
+        //    if (ComboSuggestion.Any())
+        //        itemfounded = ComboSuggestion.FirstOrDefault(x => x.Name.Equals(searchQuery));
+        //    else
+        //    {
+        //        CancellationToken cancellationToken = CancellationToken.None;
+        //        await foreach (var item in siteManager.GetSearchSuggestion(AutoSuggestionSelectedText,
+        //            cancellationToken))
+        //        {
+        //            itemfounded = item;
+        //            cancellationToken = new CancellationToken(true);
+        //            break;
+        //        }
+        //    }
 
-            if (_suggestedGames.Any())
-                foreach (var item in _suggestedGames)
-                    ComboSuggestion.Add(item.Name);
-            else
-                ComboSuggestion.Add("notfound");
-        }
-    }
+        //    if (itemfounded != null)
+        //    {
+        //        var page = await siteManager.GetSpecificationPageAsync(itemfounded.URL!);
+        //        CurrentPage = page;
+        //    }
 
-    [RelayCommand]
-    private async Task Search(AutoSuggestBoxQuerySubmittedEventArgs args)
-    {
-        if (!string.IsNullOrWhiteSpace(args.QueryText) && !args.QueryText.Equals("notfound"))
-        {
-            ProgressRingIsActive = true;
-            ProgressRingVisibility = Visibility.Visible;
-            await Task.Delay(4000);
-            var uri = _suggestedGames.FirstOrDefault(x => x.Name.Equals(args.QueryText)).URL;
-            var page = await siteManager.GetSpecificationPageAsync(uri);
-            CurrentPage = page;
-            ProgressRingIsActive = false;
-            ProgressRingVisibility = Visibility.Collapsed;
-        }
+        //    ProgressRingIsActive = false;
+        //    ProgressRingVisibility = Visibility.Collapsed;
+        //}
+        await Task.CompletedTask;
     }
 }

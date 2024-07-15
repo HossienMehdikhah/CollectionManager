@@ -29,33 +29,37 @@
                 <ColumnDefinition Width="10*" />
                 <ColumnDefinition Width="6*" />
             </Grid.ColumnDefinitions>
-            <AutoSuggestBox
-                x:Name="SearchComboBox"
+            <Grid
                 Grid.Row="0"
                 Grid.Column="1"
-                Margin="10,5,10,5"
-                HorizontalAlignment="Stretch"
-                VerticalAlignment="Center"
-                Background="Gray"
-                ItemsSource="{x:Bind ViewModel.ComboSuggestion, Mode=OneWay}"
-                PlaceholderText="Search..."
-                QueryIcon="Find"
-                Text="{x:Bind ViewModel.AutoSuggestionSelectedText, Mode=TwoWay}">
-                <interactivity:Interaction.Behaviors>
-                    <core:EventTriggerBehavior EventName="QuerySubmitted">
-                        <core:InvokeCommandAction Command="{x:Bind ViewModel.SearchCommand}" />
-                    </core:EventTriggerBehavior>
-                    <core:EventTriggerBehavior EventName="TextChanged">
-                        <core:InvokeCommandAction Command="{x:Bind ViewModel.TextChangedCommand}" />
-                    </core:EventTriggerBehavior>
-                </interactivity:Interaction.Behaviors>
-            </AutoSuggestBox>
-            <usercontrols:ContentDisplayUserControl
+                Margin="10,5,10,5">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="4*" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+                <TextBox
+                    x:Name="SearchComboBox"
+                    Background="Gray"
+                    PlaceholderText="Search..." />
+                <Button Grid.Column="1">
+                    <StackPanel>
+                        <SymbolIcon Symbol="Find" />
+                        <TextBlock />
+                    </StackPanel>
+                    <interactivity:Interaction.Behaviors>
+                        <core:EventTriggerBehavior EventName="Click">
+                            <core:InvokeCommandAction Command="{x:Bind ViewModel.SearchCommand}" CommandParameter="{Binding ElementName=SearchComboBox, Path=Text}" />
+                        </core:EventTriggerBehavior>
+                    </interactivity:Interaction.Behaviors>
+                </Button>
+            </Grid>
+
+            <!--<usercontrols:ContentDisplayUserControl
                 Grid.Row="1"
                 Grid.Column="0"
                 Grid.ColumnSpan="3"
                 Margin="10,5,10,10"
-                CurrentPage="{x:Bind ViewModel.CurrentPage, Mode=OneWay}" />
+                CurrentPage="{x:Bind ViewModel.CurrentPage, Mode=OneWay}" />-->
         </Grid>
     </Grid>
 </Page>

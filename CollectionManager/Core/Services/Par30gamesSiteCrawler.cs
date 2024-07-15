@@ -15,7 +15,7 @@ public partial class Par30gamesSiteCrawler(ILogger<Par30gamesSiteCrawler> logger
 {
     private const string baseUrl = "https://par30games.net/";
     private const string feedUrl = baseUrl + "pc/page/{0}/";
-    private const string seachUrl = baseUrl + "/page/1/?s=دانلود+{0}+pc";
+    private const string seachUrl = baseUrl + "/?s=+دانلود+{0}+pc";
     private const byte maxPostPerPage = 8;
 
     public async Task<IEnumerable<PostDTO>> GetPostsAsync(uint skip, uint take,
@@ -70,25 +70,38 @@ public partial class Par30gamesSiteCrawler(ILogger<Par30gamesSiteCrawler> logger
         };
         return GetGamePageAsync(post);
     }
-    public async Task<IEnumerable<GamePageDTO>> GetSearchSuggestionAsync(string query)
+    public async IAsyncEnumerable<GamePageDTO> GetSearchSuggestionAsync(string query, CancellationToken cancellationToken)
     {
         IBrowsingContext context = AngleSharpFactory.CreateDefault();
         var uri = string.Format(seachUrl, query);
-        var htmlDocument = await uri.GetStringAsync();
-        var document = await context.OpenAsync(x => x.Content(htmlDocument));
-        var Articles = ParsePosts(document).Select(uir =>
+        var htmlDocument = await uri.GetStringAsync(cancellationToken: cancellationToken);
+        var document = await context.OpenAsync(x => x.Content(htmlDocument), cancellationToken);
+        List<GamePageDTO> Articles = [];
+        try
         {
-            return new GamePageDTO
+            Articles = ParsePosts(document).Select(uir =>
             {
-                Name = GetNameFromURL(uir),
-                URL = uir,
-            };
-        });
-        return Articles;
+                return new GamePageDTO
+                {
+                    Name = GetNameFromURL(uir),
+                    URL = uir,
+                };
+            }).ToList();
+            
+        }
+        catch (NotFundHtmlSectionException e)
+        {
+            logger.LogWarning(e, "");
+        }
+        catch (Exception)
+        {
+            throw;
+        }
+        foreach (var Article in Articles)
+        {
+            yield return Article;
+        }
     }
-
-
-
 
 
     private async Task<IEnumerable<Uri>> GetPostsAsync(Uri uri, CancellationToken cancellationToken)
@@ -104,7 +117,7 @@ public partial class Par30gamesSiteCrawler(ILogger<Par30gamesSiteCrawler> logger
         catch(NotFundHtmlSectionException e)
         {
             logger.LogWarning(e, "");
-            return new List<Uri>();
+            return [];
         }
         catch
         {
@@ -124,7 +137,7 @@ public partial class Par30gamesSiteCrawler(ILogger<Par30gamesSiteCrawler> logger
         context ??= AngleSharpFactory.CreateDefault();
         var pageContentHtml = await post.URL.GetStringAsync(cancellationToken: cancellationToken);
         var document = await context.OpenAsync(x => x.Content(pageContentHtml), cancellationToken);
-        return new GamePageDTO()
+        var temp = new GamePageDTO()
         {
             URL = post.URL,
             Name = post.Name,
@@ -135,6 +148,7 @@ public partial class Par30gamesSiteCrawler(ILogger<Par30gamesSiteCrawler> logger
             GalleryLink = GetGalleryLink(document),
             DownloadLink = GetDownloadLink(document),
         };
+        return temp;
     }
 
 
@@ -277,4 +291,6 @@ public partial class Par30gamesSiteCrawler(ILogger<Par30gamesSiteCrawler> logger
         var link = System.Web.HttpUtility.UrlDecode(postHeaderNode.Attributes["data-src"]?.Value);
         return new Uri(link!);
     }
+
+    
 }

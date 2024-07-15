@@ -8,5 +8,6 @@ public interface IGameSiteCrawler
     IAsyncEnumerable<GamePageDTO> GetGamePagesAsync(IEnumerable<PostDTO> posts,
         CancellationToken cancellationToken);
     Task<GamePageDTO> GetPageAsync(Uri uri);
-    Task<IEnumerable<GamePageDTO>> GetSearchSuggestionAsync(string query);
+    IAsyncEnumerable<GamePageDTO> GetSearchSuggestionAsync(string query,
+        CancellationToken cancellationToken);
 }

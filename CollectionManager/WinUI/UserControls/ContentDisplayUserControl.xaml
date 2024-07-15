@@ -143,6 +143,7 @@
                     FontSize="25"
                     Foreground="Black"
                     IsTabStop="False"
+                    IsTextSelectionEnabled="True"
                     Text="{x:Bind ViewModel.CurrentPage.Name, Mode=OneWay}"
                     TextAlignment="Center"
                     TextWrapping="NoWrap" />

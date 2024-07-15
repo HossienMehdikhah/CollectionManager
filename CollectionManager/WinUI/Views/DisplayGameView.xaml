@@ -12,16 +12,16 @@
     mc:Ignorable="d">
     <interactivity:Interaction.Behaviors>
         <core:EventTriggerBehavior EventName="Loading">
-            <core:InvokeCommandAction Command="{x:Bind Path=viewModel.LoadingCommand}" />
+            <core:InvokeCommandAction Command="{x:Bind ViewModel.LoadingCommand}" />
         </core:EventTriggerBehavior>
     </interactivity:Interaction.Behaviors>
     <Grid>
         <Grid
             Canvas.ZIndex="10"
             Opacity="0.8"
-            Visibility="{x:Bind viewModel.ProgressRingVisibility, Mode=OneWay}">
-            <ProgressRing x:Name="progressRing" IsActive="{x:Bind viewModel.ProgressRingIsActive, Mode=OneWay}" />
+            Visibility="{x:Bind ViewModel.ProgressRingVisibility, Mode=OneWay}">
+            <ProgressRing x:Name="progressRing" IsActive="{x:Bind ViewModel.ProgressRingIsActive, Mode=OneWay}" />
         </Grid>
-        <usercontrols:ContentDisplayUserControl Margin="10,5,10,10" CurrentPage="{x:Bind viewModel.CurrentPage, Mode=OneWay}" />
+        <usercontrols:ContentDisplayUserControl Margin="10,5,10,10" CurrentPage="{x:Bind ViewModel.CurrentPage, Mode=OneWay}" />
     </Grid>
 </Page>

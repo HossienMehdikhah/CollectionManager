@@ -50,8 +50,9 @@ public class DIConfig
         services.AddTransient<ContentDisplayViewModel>();
         services.AddTransient<ShellViewModel>();
         services.AddTransient<SearchPageViewModel>();
-        services.AddTransient<ListedViewModel>();
+        services.AddTransient<GamelistedViewUserControlViewModel>();
         services.AddTransient<DisplayGameViewModel>();
+        services.AddTransient<ListedViewModel>();
     }
     private static void Managers(IServiceCollection services)
     {

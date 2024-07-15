@@ -13,6 +13,7 @@ public partial class App : Application
     public App()
     {
         InitializeComponent();
+        UnhandledException += App_UnhandledException;
         var builder = Microsoft.Extensions.Hosting.Host.CreateApplicationBuilder();
         builder.Configuration.AddJsonFile("appsettings.json");
         builder.Logging.ClearProviders();
@@ -20,7 +21,7 @@ public partial class App : Application
         DIConfig.Config(builder.Services);
         builder.Services.Configure<CollectionManagerOption>(builder.Configuration.GetRequiredSection(nameof(CollectionManagerOption)));
         Host = builder.Build();
-        UnhandledException += App_UnhandledException;
+        
     }
 
     public IHost Host

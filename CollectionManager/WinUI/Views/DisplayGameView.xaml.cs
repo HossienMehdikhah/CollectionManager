@@ -8,17 +8,16 @@ namespace CollectionManager.WinUI.Views;
 
 public sealed partial class DisplayGameView : Page
 {
-    private readonly DisplayGameViewModel viewModel;
+    public DisplayGameViewModel ViewModel {  get; set; }
     public DisplayGameView()
     {
-        viewModel = App.GetService<DisplayGameViewModel>();
-        
+        ViewModel = App.GetService<DisplayGameViewModel>();
     }
 
     protected override void OnNavigatedTo(NavigationEventArgs e)
     {
         base.OnNavigatedTo(e);
-        viewModel.SelectedItem = (GamePageDTO)e.Parameter;
-        this.InitializeComponent();
+        ViewModel.SelectedItem = (GamePageDTO)e.Parameter;
+        InitializeComponent();
     }
 }
