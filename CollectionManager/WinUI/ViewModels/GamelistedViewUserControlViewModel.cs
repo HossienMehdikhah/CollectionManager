@@ -1,5 +1,6 @@
 ﻿using CollectionManager.Core.Models;
 using CollectionManager.WinUI.Contracts;
+using CollectionManager.WinUI.Views;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.WinUI.Collections;
@@ -13,6 +14,6 @@ public partial class GamelistedViewUserControlViewModel(INavigationService navig
     [RelayCommand]
     public void ItemClick(ItemClickEventArgs e)
     {
-        navigationService.NavigateTo(typeof(DisplayGameViewModel).FullName!, (GamePageDTO)e.ClickedItem);
+        navigationService.NavigateTo(typeof(DisplayGameView).FullName!, (GamePageDTO)e.ClickedItem);
     }
 }

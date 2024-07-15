@@ -9,10 +9,10 @@ namespace CollectionManager.WinUI.Pages;
 
 public sealed partial class MarketGameListedPage : Page
 {
-    public MarketGameListedPageViewModel ViewModel { get; set; }
+    public MarketGameListedPageViewModel ViewModel { get => (MarketGameListedPageViewModel)DataContext; }
     public MarketGameListedPage()
     {
-        ViewModel=App.GetService<MarketGameListedPageViewModel>();
+        DataContext = App.GetService<MarketGameListedPageViewModel>();
         InitializeComponent();
     }
 
@@ -32,6 +32,4 @@ public sealed partial class MarketGameListedPage : Page
 
         mainListView.InitializeComponent();
     }
-
-    
 }
