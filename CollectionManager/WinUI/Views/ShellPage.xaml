@@ -19,28 +19,28 @@
         SelectedItem="{x:Bind ViewModel.Selected, Mode=OneWay}">
         <NavigationView.MenuItems>
             <NavigationViewItem
-                helprs:NavigationHelper.NavigateTo="CollectionManager.WinUI.ViewModels.FeedPageViewModel"
+                helprs:NavigationHelper.NavigateTo="CollectionManager.WinUI.Pages.FeedPage"
                 Content="Feeds"
                 IsTabStop="False" />
             <NavigationViewItem
-                helprs:NavigationHelper.NavigateTo="CollectionManager.WinUI.ViewModels.SearchPageViewModel"
+                helprs:NavigationHelper.NavigateTo="CollectionManager.WinUI.Pages.SearchPage"
                 Content="Search"
                 IsTabStop="False" />
             <NavigationViewItemSeparator />
             <NavigationViewItem
-                helprs:NavigationHelper.NavigateTo="CollectionManager.WinUI.ViewModels.ListedViewModel"
+                helprs:NavigationHelper.NavigateTo="CollectionManager.WinUI.Pages.MarketGameListedPage"
                 Content="Marked"
                 IsTabStop="False" />
             <NavigationViewItem
-                helprs:NavigationHelper.NavigateTo="CollectionManager.WinUI.ViewModels.ListedViewModel"
+                helprs:NavigationHelper.NavigateTo="CollectionManager.WinUI.Pages.MarketGameListedPage"
                 Content="EarlyAccess"
                 IsTabStop="False" />
             <NavigationViewItem
-                helprs:NavigationHelper.NavigateTo="CollectionManager.WinUI.ViewModels.ListedViewModel"
+                helprs:NavigationHelper.NavigateTo="CollectionManager.WinUI.Pages.MarketGameListedPage"
                 Content="Update"
                 IsTabStop="False" />
             <NavigationViewItem
-                helprs:NavigationHelper.NavigateTo="CollectionManager.WinUI.ViewModels.ListedViewModel"
+                helprs:NavigationHelper.NavigateTo="CollectionManager.WinUI.Pages.MarketGameListedPage"
                 Content="Seen"
                 IsTabStop="False" />
         </NavigationView.MenuItems>

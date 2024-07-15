@@ -5,15 +5,14 @@ using CollectionManager.WinUI.ViewModels;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Navigation;
 using WinUI;
-namespace CollectionManager.WinUI.Views;
+namespace CollectionManager.WinUI.Pages;
 
-
-public sealed partial class ListedView : Page
+public sealed partial class MarketGameListedPage : Page
 {
-    public ListedViewModel ViewModel { get; set; }
-    public ListedView()
+    public MarketGameListedPageViewModel ViewModel { get; set; }
+    public MarketGameListedPage()
     {
-        ViewModel=App.GetService<ListedViewModel>();
+        ViewModel=App.GetService<MarketGameListedPageViewModel>();
         InitializeComponent();
     }
 

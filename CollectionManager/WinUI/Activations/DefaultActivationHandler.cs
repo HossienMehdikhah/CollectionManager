@@ -1,5 +1,5 @@
 ﻿using CollectionManager.WinUI.Contracts;
-using CollectionManager.WinUI.ViewModels;
+using CollectionManager.WinUI.Pages;
 using Microsoft.UI.Xaml;
 namespace CollectionManager.WinUI.Activations;
 
@@ -13,7 +13,7 @@ public class DefaultActivationHandler(INavigationService _navigationService)
 
     protected async override Task HandleInternalAsync(LaunchActivatedEventArgs args)
     {
-        _navigationService.NavigateTo(typeof(FeedPageViewModel).FullName!, args.Arguments);
+        _navigationService.NavigateTo(typeof(FeedPage).FullName!, args.Arguments);
         await Task.CompletedTask;
     }
 }

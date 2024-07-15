@@ -33,10 +33,8 @@ public class NavigationService(IPageService pageService) : INavigationService
             RegisterFrameEvents();
         }
     }
-
     [MemberNotNullWhen(true, nameof(Frame), nameof(_frame))]
     public bool CanGoBack => Frame != null && Frame.CanGoBack;
-
     public bool NavigateTo(string pageKey, object? parameter = null, bool clearNavigation = false)
     {
         var pageType = _pageService.GetPageType(pageKey);
@@ -62,6 +60,24 @@ public class NavigationService(IPageService pageService) : INavigationService
 
         return false;
     }
+    public bool GoBack()
+    {
+        if (CanGoBack)
+        {
+            var vmBeforeNavigation = GetPageViewModel(_frame);
+            _frame.GoBack();
+            if (vmBeforeNavigation is INavigationAware navigationAware)
+            {
+                navigationAware.OnNavigatedFrom();
+            }
+
+            return true;
+        }
+
+        return false;
+    }
+    public void SetListDataItemForNextConnectedAnimation(object item) => Frame.SetListDataItemForNextConnectedAnimation(item);
+
     private void OnNavigated(object sender, NavigationEventArgs e)
     {
         if (sender is Frame frame)
@@ -80,7 +96,7 @@ public class NavigationService(IPageService pageService) : INavigationService
             Navigated?.Invoke(sender, e);
         }
     }
-    private object? GetPageViewModel(Frame frame)
+    private static object? GetPageViewModel(Frame frame)
     {
         return frame?.Content?.GetType().GetProperty("ViewModel")?.GetValue(frame.Content, null);
     }
@@ -98,23 +114,5 @@ public class NavigationService(IPageService pageService) : INavigationService
             _frame.Navigated -= OnNavigated;
         }
     }
-    public bool GoBack()
-    {
-        if (CanGoBack)
-        {
-            var vmBeforeNavigation = GetPageViewModel(_frame);
-            _frame.GoBack();
-            if (vmBeforeNavigation is INavigationAware navigationAware)
-            {
-                navigationAware.OnNavigatedFrom();
-            }
-
-            return true;
-        }
-
-        return false;
-    }
-
-    public void SetListDataItemForNextConnectedAnimation(object item) => Frame.SetListDataItemForNextConnectedAnimation(item);
 
 }
