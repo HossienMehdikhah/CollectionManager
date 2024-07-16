@@ -5,9 +5,11 @@ namespace CollectionManager.WinUI.UserControls;
 
 public sealed partial class GamelistedViewUserControl : UserControl
 {
-    public GamelistedViewUserControlViewModel ViewModel { get => (GamelistedViewUserControlViewModel)DataContext; }
     public GamelistedViewUserControl()
     {
         DataContext = App.GetService<GamelistedViewUserControlViewModel>();
+        InitializeComponent();        
     }
+
+    public GamelistedViewUserControlViewModel ViewModel { get => (GamelistedViewUserControlViewModel)DataContext; }
 }

@@ -14,7 +14,7 @@
         x:Name="listView"
         IncrementalLoadingTrigger="Edge"
         IsItemClickEnabled="True"
-        ItemsSource="{x:Bind ViewModel.GamePages}"
+        ItemsSource="{x:Bind ViewModel.GamePages, Mode=OneWay}"
         SelectionMode="None">
         <interactivity:Interaction.Behaviors>
             <core:EventTriggerBehavior EventName="ItemClick">

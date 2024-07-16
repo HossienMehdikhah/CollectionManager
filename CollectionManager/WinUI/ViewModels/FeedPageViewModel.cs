@@ -1,39 +1,38 @@
 ﻿using CollectionManager.Core.Managers;
 using CollectionManager.Core.Models;
 using CollectionManager.Core.Utilities;
+using CollectionManager.WinUI.Contracts;
 using CollectionManager.WinUI.Singleton;
+using CollectionManager.WinUI.Utilities;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using CommunityToolkit.Mvvm.Messaging;
 using Microsoft.Extensions.Options;
 using Microsoft.UI.Xaml;
 namespace CollectionManager.WinUI.ViewModels;
 
 public partial class FeedPageViewModel(SiteManager siteManager,
     IOptions<CollectionManagerOption> option, 
-    FeedPageViewModelSingleton singleton) : ObservableObject
+    FeedPageViewModelSingleton singleton) : ObservableObject, INavigationAware
 {
-    private GamePageDTO currentPage = new();
     [ObservableProperty]
     private bool progressRingIsActive = true;
     [ObservableProperty]
     private Visibility progressRingVisibility = Visibility.Visible;
     private int gamePageListIndex = -1;
     private bool isBackgroundWorkerRunning;
-
-    public GamePageDTO CurrentPage
+    private static GamePageDTO CurrentPage
     {
-        get => gamePageListIndex < 0 ? currentPage : singleton.GamePageList[gamePageListIndex];
         set
         {
-            SetProperty(ref currentPage, value);
+            WeakReferenceMessenger.Default.Send(new CurrentPageSourceMessage(value));
         }
     }
-    public CancellationToken CancellationToken { get; set; }
+    private readonly CancellationTokenSource CancellationTokenSource = new();
 
-    [RelayCommand]
-    public async Task Loading()
+    public async void OnNavigatedTo(object parameter)
     {
-        if(singleton.GamePageList.Count == 0)
+        if (singleton.GamePageList.Count == 0)
             await FetchPostsAndShowFirstItem();
         else
         {
@@ -41,12 +40,12 @@ public partial class FeedPageViewModel(SiteManager siteManager,
             DeactivateLoading();
         }
     }
-    [RelayCommand]
-    public void Unloaded()
+    public async void OnNavigatedFrom()
     {
-        CancellationToken = new CancellationToken(true);
+        await CancellationTokenSource.CancelAsync();
         singleton.FetchedPostsCount = singleton.FetchedPostsCount;
     }
+
     [RelayCommand]
     private async Task NextButtonEvent()
     {
@@ -57,7 +56,7 @@ public partial class FeedPageViewModel(SiteManager siteManager,
                 && singleton.GamePageList.Count - (gamePageListIndex + 1) <= option.Value.SearchThreshold)
             {
                 isBackgroundWorkerRunning = true;
-                await foreach (var gamePage in siteManager.GetFeedFromGalleryPage(CancellationToken))
+                await foreach (var gamePage in siteManager.GetFeedFromGalleryPage(CancellationTokenSource.Token))
                 {
                     gamePage.Name = gamePage.Name.ToCapital();
                     singleton.GamePageList.Add(gamePage);
@@ -87,7 +86,7 @@ public partial class FeedPageViewModel(SiteManager siteManager,
         {
             ActivateLoading();
             isBackgroundWorkerRunning = true;
-            await foreach (var gamePage in siteManager.GetFeedFromGalleryPage(CancellationToken))
+            await foreach (var gamePage in siteManager.GetFeedFromGalleryPage(CancellationTokenSource.Token))
             {
                 gamePage.Name = gamePage.Name.ToCapital();
                 singleton.GamePageList.Add(gamePage);

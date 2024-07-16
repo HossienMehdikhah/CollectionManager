@@ -31,10 +31,4 @@ public sealed partial class ContentDisplayUserControl : UserControl
         InitializeComponent();
     }
     public ContentDisplayViewModel ViewModel { get => (ContentDisplayViewModel)DataContext; }
-
-    public GamePageDTO CurrentPage
-    {
-        get => ViewModel.CurrentPage;
-        set => ViewModel.CurrentPage = value;
-    }
 }

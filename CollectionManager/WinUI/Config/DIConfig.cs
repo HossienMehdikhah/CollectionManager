@@ -29,7 +29,8 @@ public class DIConfig
         Services(services);
         services.AddTransient<MainWindow>();
         services.AddTransient<AngleSharpFactory>();
-        services.AddSingleton(FeedPageViewModelSingleton.Build());
+        services.AddSingleton<FeedPageViewModelSingleton>();
+        services.AddSingleton<SearchPageViewModelSingleton>();
         return services;
     }
     private static void Pages(IServiceCollection services)

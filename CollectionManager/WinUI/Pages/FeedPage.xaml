@@ -12,14 +12,6 @@
     xmlns:usercontrols="using:CollectionManager.WinUI.UserControls"
     xmlns:utilities="using:CollectionManager.WinUI.Utilities"
     mc:Ignorable="d">
-    <interactivity:Interaction.Behaviors>
-        <core:EventTriggerBehavior EventName="Loading">
-            <core:InvokeCommandAction Command="{x:Bind Path=ViewModel.LoadingCommand}" />
-        </core:EventTriggerBehavior>
-        <core:EventTriggerBehavior EventName="Unloaded">
-            <core:InvokeCommandAction Command="{x:Bind Path=ViewModel.UnloadedCommand}" />
-        </core:EventTriggerBehavior>
-    </interactivity:Interaction.Behaviors>
     <Grid>
         <Grid
             Canvas.ZIndex="10"
@@ -77,10 +69,7 @@
                     </Button.KeyboardAccelerators>
                 </Button>
             </Grid>
-            <usercontrols:ContentDisplayUserControl
-                Grid.Row="1"
-                Margin="10,5,10,10"
-                CurrentPage="{x:Bind ViewModel.CurrentPage, Mode=OneWay}" />
+            <usercontrols:ContentDisplayUserControl Grid.Row="1" Margin="10,5,10,10" />
         </Grid>
     </Grid>
 </Page>

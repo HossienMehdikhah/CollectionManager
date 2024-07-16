@@ -1,15 +1,17 @@
 ﻿using CollectionManager.Core;
 using CollectionManager.Core.Managers;
 using CollectionManager.Core.Models;
+using CollectionManager.WinUI.Utilities;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using CommunityToolkit.Mvvm.Messaging;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Media;
 using Microsoft.UI.Xaml.Media.Imaging;
 
 namespace CollectionManager.WinUI.ViewModels;
 
-public partial class ContentDisplayViewModel(SiteManager siteManager) : ObservableObject
+public partial class ContentDisplayViewModel : ObservableObject
 {
     private GamePageDTO currentPage = new();
     public GamePageDTO CurrentPage
@@ -48,7 +50,6 @@ public partial class ContentDisplayViewModel(SiteManager siteManager) : Observab
         }
     }
 
-
     [ObservableProperty]
     private bool isUpdateButtonChecked;
     [ObservableProperty]
@@ -57,26 +58,35 @@ public partial class ContentDisplayViewModel(SiteManager siteManager) : Observab
     private bool isSeenButtonChecked;
     [ObservableProperty]
     private bool isEralyAccesButtonChecked;
+    private readonly SiteManager _siteManager;
 
+    public ContentDisplayViewModel(SiteManager siteManager)
+    {
+        _siteManager = siteManager;
+        WeakReferenceMessenger.Default.Register<CurrentPageSourceMessage>(this, (r, m) =>
+        {
+           CurrentPage = m.Value;
+        });
+    }
 
     [RelayCommand]
     private async Task AddToUpdateCollection()
     {
-        await siteManager.AddToUpdateCollection(CurrentPage);
+        await _siteManager.AddToUpdateCollection(CurrentPage);
         IsCheckedAll(false);
         IsUpdateButtonChecked = true;
     }
     [RelayCommand]
     private async Task AddToMarkedCollection()
     {
-        await siteManager.AddToMarkCollection(CurrentPage);
+        await _siteManager.AddToMarkCollection(CurrentPage);
         IsCheckedAll(false);
         IsMarkedButtonChecked = true;
     }
     [RelayCommand]
     private async Task AddToSeenCollection()
     {
-        await siteManager.AddToSeenCollection(CurrentPage);
+        await _siteManager.AddToSeenCollection(CurrentPage);
         IsCheckedAll(false);
         IsSeenButtonChecked = true;
 
@@ -84,7 +94,7 @@ public partial class ContentDisplayViewModel(SiteManager siteManager) : Observab
     [RelayCommand]
     private async Task AddToEarlyAccessCollection()
     {
-        await siteManager.AddToEarlyAccessCollection(CurrentPage);
+        await _siteManager.AddToEarlyAccessCollection(CurrentPage);
         IsCheckedAll(false);
         IsEralyAccesButtonChecked = true;
     }
@@ -105,7 +115,7 @@ public partial class ContentDisplayViewModel(SiteManager siteManager) : Observab
         TreeViewSelectionChangeAction.Invoke(args);
     }
     [RelayCommand]
-    private async Task DownloadLinkSelectionConfirm(TreeView item)
+    private void DownloadLinkSelectionConfirm(TreeView item)
     {
         var temp = item.SelectedItems.Where(x => x is DownloadURIDTO).Cast<DownloadURIDTO>().Select(x=>x.Uri).ToList();
         Broker.AddToIDMDownLoadList(temp);

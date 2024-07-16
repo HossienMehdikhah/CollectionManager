@@ -1,26 +1,27 @@
 ﻿using CollectionManager.Core.Managers;
 using CollectionManager.Core.Models;
+using CollectionManager.WinUI.Contracts;
+using CollectionManager.WinUI.Utilities;
 using CommunityToolkit.Mvvm.ComponentModel;
-using CommunityToolkit.Mvvm.Input;
+using CommunityToolkit.Mvvm.Messaging;
 using Microsoft.UI.Xaml;
 namespace CollectionManager.WinUI.ViewModels;
 
-public partial class DisplayGameViewModel(SiteManager siteManager) : ObservableObject
+public partial class DisplayGameViewModel(SiteManager siteManager) : ObservableObject, INavigationAware
 {
-    [ObservableProperty]
-    private GamePageDTO currentPage = new();
     [ObservableProperty]
     private bool progressRingIsActive = false;
     [ObservableProperty]
     private Visibility progressRingVisibility = Visibility.Collapsed;
 
-    public GamePageDTO SelectedItem { get; set; } = new();
-
-    [RelayCommand]
-    public async Task Loading()
+    public void OnNavigatedFrom()
+    {
+    }
+    public async void OnNavigatedTo(object parameter)
     {
         ActivateLoading();
-        CurrentPage = await siteManager.GetSpecificationPageAsync(SelectedItem.URL!);
+        var currentPage = await siteManager.GetSpecificationPageAsync(((GamePageDTO)parameter).URL!);
+        WeakReferenceMessenger.Default.Send(new CurrentPageSourceMessage(currentPage));
         DeactivateLoading();
     }
 

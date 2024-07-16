@@ -1,23 +1,15 @@
 using CollectionManager.WinUI.ViewModels;
-using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using WinUI;
+namespace CollectionManager.WinUI.Pages;
 
-// To learn more about WinUI, the WinUI project structure,
-// and more about our project templates, see: http://aka.ms/winui-project-info.
-
-namespace CollectionManager.WinUI.Pages
+public sealed partial class FeedPage : Page
 {
-    /// <summary>
-    /// An empty page that can be used on its own or navigated to within a Frame.
-    /// </summary>
-    public sealed partial class FeedPage : Page
+    public FeedPage()
     {
-        public FeedPageViewModel ViewModel { get; }
-        public FeedPage()
-        {
-            ViewModel = App.GetService<FeedPageViewModel>();
-            this.InitializeComponent();
-        }
+        DataContext = App.GetService<FeedPageViewModel>();
+        InitializeComponent();
     }
+
+    public FeedPageViewModel ViewModel { get => (FeedPageViewModel)DataContext; }
 }

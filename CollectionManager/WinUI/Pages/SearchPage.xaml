@@ -29,6 +29,8 @@
                 <ColumnDefinition Width="10*" />
                 <ColumnDefinition Width="6*" />
             </Grid.ColumnDefinitions>
+
+            <!--  SearchBar  -->
             <Grid
                 Grid.Row="0"
                 Grid.Column="1"
@@ -53,13 +55,12 @@
                     </interactivity:Interaction.Behaviors>
                 </Button>
             </Grid>
+            <!--  SearchBar  -->
 
-            <!--<usercontrols:ContentDisplayUserControl
+            <usercontrols:GamelistedViewUserControl
+                x:Name="mainListView"
                 Grid.Row="1"
-                Grid.Column="0"
-                Grid.ColumnSpan="3"
-                Margin="10,5,10,10"
-                CurrentPage="{x:Bind ViewModel.CurrentPage, Mode=OneWay}" />-->
+                Grid.ColumnSpan="3" />
         </Grid>
     </Grid>
 </Page>

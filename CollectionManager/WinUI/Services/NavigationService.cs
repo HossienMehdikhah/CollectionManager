@@ -50,9 +50,7 @@ public class NavigationService(IPageService pageService) : INavigationService
             {
                 _lastParameterUsed = parameter;
                 if (vmBeforeNavigation is INavigationAware navigationAware)
-                {
                     navigationAware.OnNavigatedFrom();
-                }
             }
 
             return navigated;
@@ -62,39 +60,28 @@ public class NavigationService(IPageService pageService) : INavigationService
     }
     public bool GoBack()
     {
-        if (CanGoBack)
-        {
-            var vmBeforeNavigation = GetPageViewModel(_frame);
-            _frame.GoBack();
-            if (vmBeforeNavigation is INavigationAware navigationAware)
-            {
-                navigationAware.OnNavigatedFrom();
-            }
+        if (!CanGoBack)
+            return false;
 
-            return true;
-        }
-
-        return false;
+        var vmBeforeNavigation = GetPageViewModel(_frame);
+        _frame.GoBack();
+        if (vmBeforeNavigation is INavigationAware navigationAware)
+            navigationAware.OnNavigatedFrom();
+        return true;
     }
     public void SetListDataItemForNextConnectedAnimation(object item) => Frame.SetListDataItemForNextConnectedAnimation(item);
 
     private void OnNavigated(object sender, NavigationEventArgs e)
     {
-        if (sender is Frame frame)
-        {
-            var clearNavigation = (bool)frame.Tag;
-            if (clearNavigation)
-            {
-                frame.BackStack.Clear();
-            }
+        if (sender is not Frame frame)
+            return;
 
-            if (GetPageViewModel(frame) is INavigationAware navigationAware)
-            {
-                navigationAware.OnNavigatedTo(e.Parameter);
-            }
-
-            Navigated?.Invoke(sender, e);
-        }
+        var clearNavigation = (bool)frame.Tag;
+        if (clearNavigation)
+            frame.BackStack.Clear();
+        if (GetPageViewModel(frame) is INavigationAware navigationAware)
+            navigationAware.OnNavigatedTo(e.Parameter);
+        Navigated?.Invoke(sender, e);
     }
     private static object? GetPageViewModel(Frame frame)
     {
@@ -114,5 +101,4 @@ public class NavigationService(IPageService pageService) : INavigationService
             _frame.Navigated -= OnNavigated;
         }
     }
-
 }

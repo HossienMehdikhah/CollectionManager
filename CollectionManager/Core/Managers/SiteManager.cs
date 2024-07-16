@@ -38,7 +38,7 @@ public class SiteManager(IGameSiteCrawler _gameSiteCrawler, IOptions<CollectionM
     public IAsyncEnumerable<GamePageDTO> SearchAsync(string query,
         CancellationToken cancellationToken = default)
     {
-        return _gameSiteCrawler.GetSearchSuggestionAsync(query, cancellationToken);
+        return _gameSiteCrawler.SearchAsync(query, cancellationToken);
     }
     public async Task<GamePageDTO> GetSpecificationPageAsync(Uri pageUri)
     {

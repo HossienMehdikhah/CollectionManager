@@ -26,12 +26,7 @@ public partial class Par30gamesSiteCrawler(ILogger<Par30gamesSiteCrawler> logger
             var skipPage = skip / maxPostPerPage;
             Uri uri = new(string.Format(feedUrl, ++skipPage));
             var posts = await GetPostsAsync(uri, cancellationToken);
-            var gamePage = posts.Select(x => new PostDTO
-            {
-                URL = x,
-                Name = GetNameFromURL(x),
-            });
-            return gamePage;
+            return posts;
         }
         catch
         {
@@ -70,49 +65,50 @@ public partial class Par30gamesSiteCrawler(ILogger<Par30gamesSiteCrawler> logger
         };
         return GetGamePageAsync(post);
     }
-    public async IAsyncEnumerable<GamePageDTO> GetSearchSuggestionAsync(string query, CancellationToken cancellationToken)
+    public async IAsyncEnumerable<GamePageDTO> SearchAsync(string query,
+        [EnumeratorCancellation] CancellationToken cancellationToken)
     {
         IBrowsingContext context = AngleSharpFactory.CreateDefault();
         var uri = string.Format(seachUrl, query);
-        var htmlDocument = await uri.GetStringAsync(cancellationToken: cancellationToken);
-        var document = await context.OpenAsync(x => x.Content(htmlDocument), cancellationToken);
-        List<GamePageDTO> Articles = [];
-        try
+        var posts = await GetPostsAsync(new Uri(uri), cancellationToken);
+
+        foreach (var post in posts)
         {
-            Articles = ParsePosts(document).Select(uir =>
+            GamePageDTO gamepage = new();
+            try
             {
-                return new GamePageDTO
-                {
-                    Name = GetNameFromURL(uir),
-                    URL = uir,
-                };
-            }).ToList();
-            
-        }
-        catch (NotFundHtmlSectionException e)
-        {
-            logger.LogWarning(e, "");
-        }
-        catch (Exception)
-        {
-            throw;
-        }
-        foreach (var Article in Articles)
-        {
-            yield return Article;
+                gamepage = await GetGamePageAsync(post, context, cancellationToken);
+            }
+            catch (NotFundHtmlSectionException e)
+            {
+                logger.LogError(e, "");
+                continue;
+            }
+            catch
+            {
+                throw;
+            }
+            yield return gamepage;
         }
     }
 
 
-    private async Task<IEnumerable<Uri>> GetPostsAsync(Uri uri, CancellationToken cancellationToken)
+    private Task<IEnumerable<PostDTO>> GetPostsAsync(Uri uri, CancellationToken cancellationToken = default)
+        => GetPostsAsync(uri, null, cancellationToken);
+    private async Task<IEnumerable<PostDTO>> GetPostsAsync(Uri uri, IBrowsingContext? browsingContext = null,
+        CancellationToken cancellationToken = default)
     {
         try
         {
-            IBrowsingContext context = AngleSharpFactory.CreateDefault();
+            browsingContext ??= AngleSharpFactory.CreateDefault();
             var stringDocument = await uri.GetStringAsync(cancellationToken: cancellationToken);
-            var document = await context.OpenAsync(x => x.Content(stringDocument), cancellationToken);
+            var document = await browsingContext.OpenAsync(x => x.Content(stringDocument), cancellationToken);
             var Articles = ParsePosts(document);
-            return Articles;
+            return Articles.Select(x => new PostDTO
+            {
+                URL = x,
+                Name = GetNameFromURL(x),
+            });
         }
         catch(NotFundHtmlSectionException e)
         {
@@ -150,8 +146,6 @@ public partial class Par30gamesSiteCrawler(ILogger<Par30gamesSiteCrawler> logger
         };
         return temp;
     }
-
-
     private string GetSummery(IDocument document)
     {
         var temp = document.QuerySelector(".post-content")
@@ -258,8 +252,6 @@ public partial class Par30gamesSiteCrawler(ILogger<Par30gamesSiteCrawler> logger
         var gameName = GetGameNameFromURL(rawTitle);
         return gameName;
     }
-    
-
     [GeneratedRegex("(?:download-)?" +
         "(?:(?<gameName>[A-Za-z0-9-]*)-for-pc" +
         "|(?<gameName>[A-Za-z0-9-]*)" +
