@@ -11,7 +11,7 @@ using Microsoft.UI.Xaml.Media.Imaging;
 
 namespace CollectionManager.WinUI.ViewModels;
 
-public partial class ContentDisplayViewModel : ObservableObject
+public partial class ContentDisplayUserControlViewModel : ObservableObject
 {
     private GamePageDTO currentPage = new();
     public GamePageDTO CurrentPage
@@ -60,7 +60,7 @@ public partial class ContentDisplayViewModel : ObservableObject
     private bool isEralyAccesButtonChecked;
     private readonly SiteManager _siteManager;
 
-    public ContentDisplayViewModel(SiteManager siteManager)
+    public ContentDisplayUserControlViewModel(SiteManager siteManager)
     {
         _siteManager = siteManager;
         WeakReferenceMessenger.Default.Register<CurrentPageSourceMessage>(this, (r, m) =>

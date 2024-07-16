@@ -9,15 +9,12 @@ using CommunityToolkit.Mvvm.Messaging;
 using CommunityToolkit.WinUI.Collections;
 using Microsoft.UI.Xaml;
 using System.Collections.ObjectModel;
+using System.Collections.Specialized;
 namespace CollectionManager.WinUI.ViewModels;
 
 public partial class SearchPageViewModel(SiteManager siteManager,
     SearchPageViewModelSingleton singleton) : ObservableObject, INavigationAware
 {
-    [ObservableProperty]
-    private bool progressRingIsActive = false;
-    [ObservableProperty]
-    private Visibility progressRingVisibility = Visibility.Collapsed;
     [ObservableProperty]
     private string searchQuery = string.Empty;
 
@@ -46,7 +43,7 @@ public partial class SearchPageViewModel(SiteManager siteManager,
         WeakReferenceMessenger.Default.Send(new IncrementalSourceMessage(collection));
     }
 
-    private void Collection_CollectionChanged(object? sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
+    private void Collection_CollectionChanged(object? sender, NotifyCollectionChangedEventArgs e)
     {
         var collection = (IncrementalLoadingCollection<IIncrementalSource<GamePageDTO>, GamePageDTO>)sender!;
         singleton.GamePages = [.. collection];

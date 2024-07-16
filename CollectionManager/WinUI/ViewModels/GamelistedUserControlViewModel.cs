@@ -9,16 +9,16 @@ using Microsoft.UI.Xaml.Controls;
 using System.Collections.ObjectModel;
 namespace CollectionManager.WinUI.ViewModels;
 
-public partial class GamelistedViewUserControlViewModel : ObservableObject
+public partial class GamelistedUserControlViewModel : ObservableObject
 {
     private readonly INavigationService _navigationService;
 
-    public GamelistedViewUserControlViewModel(INavigationService navigationService)
+    public GamelistedUserControlViewModel(INavigationService navigationService)
     {
         _navigationService = navigationService;
         WeakReferenceMessenger.Default.Register<IncrementalSourceMessage>(this, (r, m) =>
         {
-            ((GamelistedViewUserControlViewModel)r).GamePages = m.Value;
+            ((GamelistedUserControlViewModel)r).GamePages = m.Value;
             OnPropertyChanged(nameof(GamePages));
         });
     }

@@ -35,10 +35,10 @@ public class DIConfig
     private static void ViewModels(IServiceCollection services)
     {
         services.AddTransient<FeedPageViewModel>();
-        services.AddTransient<ContentDisplayViewModel>();
+        services.AddTransient<ContentDisplayUserControlViewModel>();
         services.AddTransient<ShellViewModel>();
         services.AddTransient<SearchPageViewModel>();
-        services.AddTransient<GamelistedViewUserControlViewModel>();
+        services.AddTransient<GamelistedUserControlViewModel>();
         services.AddTransient<DisplayGameViewModel>();
         services.AddTransient<MarketGameListedPageViewModel>();
         services.AddTransient<LoadingUserControlViewModel>();

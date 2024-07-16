@@ -36,7 +36,7 @@
                         Grid.Column="0"
                         Background="Gray"
                         PlaceholderText="Search..."
-                        Text="{x:Bind ViewModel.SearchQuery, Mode=OneWay}" />
+                        Text="{x:Bind ViewModel.SearchQuery, Mode=OneTime}" />
                     <Button Grid.Column="1">
                         <SymbolIcon Symbol="Find" />
                         <interactivity:Interaction.Behaviors>

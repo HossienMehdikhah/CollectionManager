@@ -24,7 +24,7 @@ public partial class FeedPageViewModel(SiteManager siteManager,
         }
     }
     private readonly CancellationTokenSource CancellationTokenSource = new();
-    private bool _isLoading = false;
+    private bool _isLoading = true;
 
     public async void OnNavigatedTo(object parameter)
     {

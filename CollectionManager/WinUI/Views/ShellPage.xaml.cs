@@ -5,7 +5,6 @@ namespace CollectionManager.WinUI.Views;
 
 public sealed partial class ShellPage : Page
 {
-    private ShellViewModel ViewModel { get => (ShellViewModel)DataContext; }
     public ShellPage()
     {
         DataContext = App.GetService<ShellViewModel>();
@@ -13,4 +12,6 @@ public sealed partial class ShellPage : Page
         ViewModel.NavigationService.Frame = NavigationFrame;
         ViewModel.NavigationViewService.Initialize(NavigationViewControl);
     }
+
+    public ShellViewModel ViewModel { get => (ShellViewModel)DataContext; }
 }

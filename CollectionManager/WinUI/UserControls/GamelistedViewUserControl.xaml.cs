@@ -7,9 +7,9 @@ public sealed partial class GamelistedViewUserControl : UserControl
 {
     public GamelistedViewUserControl()
     {
-        DataContext = App.GetService<GamelistedViewUserControlViewModel>();
+        DataContext = App.GetService<GamelistedUserControlViewModel>();
         InitializeComponent();        
     }
 
-    public GamelistedViewUserControlViewModel ViewModel { get => (GamelistedViewUserControlViewModel)DataContext; }
+    public GamelistedUserControlViewModel ViewModel { get => (GamelistedUserControlViewModel)DataContext; }
 }
