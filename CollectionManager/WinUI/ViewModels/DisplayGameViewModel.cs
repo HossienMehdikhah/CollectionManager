@@ -15,7 +15,7 @@ public partial class DisplayGameViewModel(SiteManager siteManager, DisplayGamePa
     }
     public async void OnNavigatedTo(object parameter)
     {
-        var url = ((GamePageDTO)parameter).URL!;
+        var url = ((PostDTO)parameter).URL!;
         WeakReferenceMessenger.Default.Send(new IsLoadingSourceMessage(true));
         GamePageDTO? currentPage = singleton.GetPage(url);
         if (currentPage is null)

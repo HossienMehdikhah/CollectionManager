@@ -26,7 +26,7 @@
             </Style>
         </ListView.Resources>
         <ListView.ItemTemplate>
-            <DataTemplate x:DataType="models:GamePageDTO">
+            <DataTemplate x:DataType="models:PostDTO">
                 <Grid Height="100" Margin="10">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="auto" />

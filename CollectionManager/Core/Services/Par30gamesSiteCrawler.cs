@@ -61,54 +61,30 @@ public partial class Par30gamesSiteCrawler(ILogger<Par30gamesSiteCrawler> logger
         PostDTO post  = new() 
         { 
             URL = uri,
-            Name = GetNameFromURL(uri),
+            Name = ExtractionNameFromURL(uri),            
         };
         return GetGamePageAsync(post);
     }
-    public async IAsyncEnumerable<GamePageDTO> SearchAsync(string query,
+    public async IAsyncEnumerable<PostDTO> SearchAsync(string query,
         [EnumeratorCancellation] CancellationToken cancellationToken)
     {
-        IBrowsingContext context = AngleSharpFactory.CreateDefault();
         var uri = string.Format(seachUrl, query);
-        var posts = await GetPostsAsync(new Uri(uri), cancellationToken);
-
-        foreach (var post in posts)
+        foreach (var post in await GetPostsAsync(new Uri(uri), cancellationToken))
         {
-            GamePageDTO gamepage = new();
-            try
-            {
-                gamepage = await GetGamePageAsync(post, context, cancellationToken);
-            }
-            catch (NotFundHtmlSectionException e)
-            {
-                logger.LogError(e, "");
-                continue;
-            }
-            catch
-            {
-                throw;
-            }
-            yield return gamepage;
+            yield return post;
         }
     }
 
-
-    private Task<IEnumerable<PostDTO>> GetPostsAsync(Uri uri, CancellationToken cancellationToken = default)
-        => GetPostsAsync(uri, null, cancellationToken);
-    private async Task<IEnumerable<PostDTO>> GetPostsAsync(Uri uri, IBrowsingContext? browsingContext = null,
-        CancellationToken cancellationToken = default)
+    #region Posts
+    private async Task<IEnumerable<PostDTO>> GetPostsAsync(Uri uri, CancellationToken cancellationToken = default)
     {
         try
         {
-            browsingContext ??= AngleSharpFactory.CreateDefault();
+            var browsingContext = AngleSharpFactory.CreateDefault();
             var stringDocument = await uri.GetStringAsync(cancellationToken: cancellationToken);
             var document = await browsingContext.OpenAsync(x => x.Content(stringDocument), cancellationToken);
-            var Articles = ParsePosts(document);
-            return Articles.Select(x => new PostDTO
-            {
-                URL = x,
-                Name = GetNameFromURL(x),
-            });
+            var Articles = ExtractionPosts(document);
+            return Articles;
         }
         catch(NotFundHtmlSectionException e)
         {
@@ -120,13 +96,58 @@ public partial class Par30gamesSiteCrawler(ILogger<Par30gamesSiteCrawler> logger
             throw;
         }
     }
-    private IEnumerable<Uri> ParsePosts(IDocument document)
+    private static List<PostDTO> ExtractionPosts(IDocument document)
     {
         var Articles = document.QuerySelectorAll(".post.icon-steam");
-        if (Articles.Length != 0)
-            return Articles.Select(GetUri);
-        else throw new NotFundHtmlSectionException();
+        if (Articles.Length == 0)
+            throw new NotFundHtmlSectionException();
+        List<PostDTO> posts = [];
+        foreach (var Article in Articles)
+        {
+            var url = ExtractionPostUrl(Article);
+            posts.Add(new PostDTO
+            {
+                Name = ExtractionNameFromURL(url),
+                URL = url,
+                Thumbnail = ExtractionPostThumbnail(Article),
+            });
+        }
+        return posts;
     }
+    private static Uri ExtractionPostUrl(IElement node)
+    {
+        var hrefElement = node.QuerySelector("header h2 a") ?? throw new NotFundHtmlSectionException();
+        var link = hrefElement.Attributes["href"] ?? throw new NotFundHtmlSectionException();
+        return new Uri(System.Web.HttpUtility.UrlDecode(link.Value));
+    }
+    private static string ExtractionNameFromURL(Uri url)
+    {
+        var rawTitle = url.Segments[2].Replace("/", "");
+        var result = GetGameNameFromURLPattern()
+                .Matches(rawTitle)
+                .SelectMany(x => x.Groups.Values)
+                .Where(x => !string.IsNullOrEmpty(x.Value))
+                .First(x => x.Name == "gameName").Value;
+
+        result = result.Replace("-", " ");
+        var gameName = RegexHelper.ConvertRomanNumberToEnglish_Under40(result);
+        return gameName;
+    }
+    [GeneratedRegex("(?:download-)?" +
+        "(?:(?<gameName>[A-Za-z0-9-]*)-for-pc" +
+        "|(?<gameName>[A-Za-z0-9-]*)" +
+        "|(?<gameName>[A-Za-z0-9-]*)-pc)")]
+    private static partial Regex GetGameNameFromURLPattern();
+    private static Uri ExtractionPostThumbnail(IElement node)
+    {
+        var imgElement = node.QuerySelector("a img") ?? throw new NotFundHtmlSectionException();
+        var link = imgElement.Attributes["data-src"] 
+            ?? imgElement.Attributes["src"] 
+            ?? throw new NotFundHtmlSectionException();
+        return new Uri(System.Web.HttpUtility.UrlDecode(link.Value));
+    }
+    #endregion
+
     private async Task<GamePageDTO> GetGamePageAsync(PostDTO post, IBrowsingContext? context = null,
         CancellationToken cancellationToken = default)
     {
@@ -154,12 +175,7 @@ public partial class Par30gamesSiteCrawler(ILogger<Par30gamesSiteCrawler> logger
             .Where(x => !string.IsNullOrEmpty(x));
         temp = temp.Take(temp.Count() - 4);
         return string.Join("\\n", temp);
-    }
-    private Uri GetUri(IElement node)
-    {
-        var hrefElement = node.QuerySelector("header h2 a");
-        return new Uri(System.Web.HttpUtility.UrlDecode(hrefElement.Attributes["href"]?.Value));
-    }
+    }    
     private DateOnly GetDateTime(IDocument node)
     {
         var clockNode = node.QuerySelector(".icon-days").NextSibling;
@@ -246,43 +262,15 @@ public partial class Par30gamesSiteCrawler(ILogger<Par30gamesSiteCrawler> logger
             value += " MB";
         return value;
     }
-    private string GetNameFromURL(Uri url)
-    {
-        var rawTitle = url.Segments[2].Replace("/", "");
-        var gameName = GetGameNameFromURL(rawTitle);
-        return gameName;
-    }
-    [GeneratedRegex("(?:download-)?" +
-        "(?:(?<gameName>[A-Za-z0-9-]*)-for-pc" +
-        "|(?<gameName>[A-Za-z0-9-]*)" +
-        "|(?<gameName>[A-Za-z0-9-]*)-pc)")]
-    private static partial Regex GetGameNameFromURLPattern();
-    private string GetGameNameFromURL(string rawName)
-    {
-        try
-        {
-            var result = GetGameNameFromURLPattern()
-                .Matches(rawName)
-                .SelectMany(x => x.Groups.Values)
-                .Where(x => !string.IsNullOrEmpty(x.Value))
-                .First(x => x.Name == "gameName").Value
-                ;
+   
+    
 
-            result = result.Replace("-", " ");
-            var gameName = RegexHelper.ConvertRomanNumberToEnglish_Under40(result);
-            return gameName;
-        }
-        catch
-        {
-            throw;
-        }
-    }
+
+
     private Uri GetThumbnail(IDocument document)
     {
         var postHeaderNode = document.QuerySelector(".review > div.pic > img") ?? throw new Exception();
         var link = System.Web.HttpUtility.UrlDecode(postHeaderNode.Attributes["data-src"]?.Value);
         return new Uri(link!);
     }
-
-    
 }

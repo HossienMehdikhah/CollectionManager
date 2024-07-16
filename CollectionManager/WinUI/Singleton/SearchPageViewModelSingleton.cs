@@ -4,5 +4,5 @@ namespace CollectionManager.WinUI.Singleton;
 public class SearchPageViewModelSingleton
 {
     public string QuerySearch { get; set; } = string.Empty;
-    public List<GamePageDTO> GamePages { get; set; } = [];
+    public List<PostDTO> GamePages { get; set; } = [];
 }

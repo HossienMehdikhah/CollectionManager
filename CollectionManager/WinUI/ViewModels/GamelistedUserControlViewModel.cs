@@ -23,11 +23,11 @@ public partial class GamelistedUserControlViewModel : ObservableObject
         });
     }
 
-    public ObservableCollection<GamePageDTO>? GamePages { get; set; }
+    public ObservableCollection<PostDTO>? GamePages { get; set; }
 
     [RelayCommand]
     public void ItemClick(ItemClickEventArgs e)
     {
-        _navigationService.NavigateTo(typeof(DisplayGamePage).FullName!, (GamePageDTO)e.ClickedItem);
+        _navigationService.NavigateTo(typeof(DisplayGamePage).FullName!, (PostDTO)e.ClickedItem);
     }
 }

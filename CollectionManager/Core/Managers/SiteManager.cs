@@ -35,9 +35,8 @@ public class SiteManager(IGameSiteCrawler _gameSiteCrawler, IOptions<CollectionM
         }
         maxAvailablePost = 0;
     }
-    public IAsyncEnumerable<GamePageDTO> SearchAsync(string query,
-        CancellationToken cancellationToken = default)
-    {
+    public IAsyncEnumerable<PostDTO> SearchAsync(string query, CancellationToken cancellationToken = default)
+    { 
         return _gameSiteCrawler.SearchAsync(query, cancellationToken);
     }
     public async Task<GamePageDTO> GetSpecificationPageAsync(Uri pageUri)
@@ -46,7 +45,6 @@ public class SiteManager(IGameSiteCrawler _gameSiteCrawler, IOptions<CollectionM
         await DefineGameType(gamePage);
         return gamePage;
     }
-
     public async Task AddToUpdateCollection(GamePageDTO gamePageDTO)
     {
         await AddToCollection(gamePageDTO, MarkedType.Update);

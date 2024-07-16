@@ -7,7 +7,6 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.Messaging;
 using CommunityToolkit.WinUI.Collections;
-using Microsoft.UI.Xaml;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 namespace CollectionManager.WinUI.ViewModels;
@@ -26,7 +25,7 @@ public partial class SearchPageViewModel(SiteManager siteManager,
     public void OnNavigatedTo(object parameter)
     {
         searchQuery = singleton.QuerySearch;
-        ObservableCollection<GamePageDTO> catchCollection = new(singleton.GamePages);
+        ObservableCollection<PostDTO> catchCollection = new(singleton.GamePages);
         WeakReferenceMessenger.Default.Send(new IncrementalSourceMessage(catchCollection));
     }
 
@@ -37,7 +36,7 @@ public partial class SearchPageViewModel(SiteManager siteManager,
         singleton.GamePages.Clear();
         singleton.QuerySearch = searchQuery;
         IncrementalSourceFromWebSite searchResultCollection = new(siteManager, searchQuery);
-        IncrementalLoadingCollection<IIncrementalSource<GamePageDTO>, GamePageDTO> collection = new(searchResultCollection);
+        IncrementalLoadingCollection<IIncrementalSource<PostDTO>, PostDTO> collection = new(searchResultCollection);
         collection.OnEndLoading = () => WeakReferenceMessenger.Default.Send(new IsLoadingSourceMessage(false));
         collection.CollectionChanged += Collection_CollectionChanged;
         WeakReferenceMessenger.Default.Send(new IncrementalSourceMessage(collection));
@@ -45,7 +44,7 @@ public partial class SearchPageViewModel(SiteManager siteManager,
 
     private void Collection_CollectionChanged(object? sender, NotifyCollectionChangedEventArgs e)
     {
-        var collection = (IncrementalLoadingCollection<IIncrementalSource<GamePageDTO>, GamePageDTO>)sender!;
+        var collection = (IncrementalLoadingCollection<IIncrementalSource<PostDTO>, PostDTO>)sender!;
         singleton.GamePages = [.. collection];
     }
 }

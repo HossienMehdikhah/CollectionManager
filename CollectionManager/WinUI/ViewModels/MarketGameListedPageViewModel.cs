@@ -5,7 +5,6 @@ using CollectionManager.WinUI.Utilities;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Messaging;
 using CommunityToolkit.WinUI.Collections;
-using WinUI;
 namespace CollectionManager.WinUI.ViewModels;
 
 public partial class MarketGameListedPageViewModel(SiteManager siteManager) : ObservableObject, INavigationAware
@@ -19,7 +18,7 @@ public partial class MarketGameListedPageViewModel(SiteManager siteManager) : Ob
     {
         var markettype = Enum.Parse<MarkedType>((string)parameter);
         IncrementalSourceFromDbByMarktype databseCollection = new(siteManager, markettype);
-        IncrementalLoadingCollection<IIncrementalSource<GamePageDTO>, GamePageDTO> collection = new(databseCollection);
+        IncrementalLoadingCollection<IIncrementalSource<PostDTO>, PostDTO> collection = new(databseCollection);
         WeakReferenceMessenger.Default.Send(new IncrementalSourceMessage(collection));
     }
 }
