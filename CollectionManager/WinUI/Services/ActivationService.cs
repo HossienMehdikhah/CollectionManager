@@ -15,7 +15,7 @@ public class ActivationService(ActivationHandler<LaunchActivatedEventArgs> _defa
     {
         if (App.MainWindow.Content == null)
         {
-            _shell = App.GetService<ShellPage>();
+            _shell = new ShellPage();
             App.MainWindow.Content = _shell ?? new Frame();
         }
         await HandleActivationAsync(activationArgs);

@@ -8,20 +8,15 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.Messaging;
 using Microsoft.Extensions.Options;
-using Microsoft.UI.Xaml;
 namespace CollectionManager.WinUI.ViewModels;
 
 public partial class FeedPageViewModel(SiteManager siteManager,
     IOptions<CollectionManagerOption> option, 
     FeedPageViewModelSingleton singleton) : ObservableObject, INavigationAware
 {
-    [ObservableProperty]
-    private bool progressRingIsActive = true;
-    [ObservableProperty]
-    private Visibility progressRingVisibility = Visibility.Visible;
     private int gamePageListIndex = -1;
     private bool isBackgroundWorkerRunning;
-    private static GamePageDTO CurrentPage
+    private GamePageDTO CurrentPage
     {
         set
         {
@@ -29,16 +24,14 @@ public partial class FeedPageViewModel(SiteManager siteManager,
         }
     }
     private readonly CancellationTokenSource CancellationTokenSource = new();
+    private bool _isLoading = false;
 
     public async void OnNavigatedTo(object parameter)
     {
         if (singleton.GamePageList.Count == 0)
             await FetchPostsAndShowFirstItem();
         else
-        {
             CurrentPage = singleton.GamePageList[++gamePageListIndex];
-            DeactivateLoading();
-        }
     }
     public async void OnNavigatedFrom()
     {
@@ -49,10 +42,15 @@ public partial class FeedPageViewModel(SiteManager siteManager,
     [RelayCommand]
     private async Task NextButtonEvent()
     {
-        if (gamePageListIndex + 1 <= singleton.GamePageList.Count)
+        if (gamePageListIndex + 1 > singleton.GamePageList.Count && isBackgroundWorkerRunning)
+        {
+            _isLoading = true;
+            WeakReferenceMessenger.Default.Send(new IsLoadingSourceMessage(true));
+        }
+        else
         {
             CurrentPage = singleton.GamePageList[++gamePageListIndex];
-            if (!isBackgroundWorkerRunning 
+            if (!isBackgroundWorkerRunning
                 && singleton.GamePageList.Count - (gamePageListIndex + 1) <= option.Value.SearchThreshold)
             {
                 isBackgroundWorkerRunning = true;
@@ -64,11 +62,6 @@ public partial class FeedPageViewModel(SiteManager siteManager,
                 isBackgroundWorkerRunning = false;
             }
         }
-        else
-        {
-            if (isBackgroundWorkerRunning)
-                ActivateLoading();
-        }
     }
     [RelayCommand]
     private void PreviousButtonEvent()
@@ -78,41 +71,30 @@ public partial class FeedPageViewModel(SiteManager siteManager,
             CurrentPage = singleton.GamePageList[--gamePageListIndex];
         }
     }
-
-
     private async Task FetchPostsAndShowFirstItem()
     {
         try
         {
-            ActivateLoading();
             isBackgroundWorkerRunning = true;
+            WeakReferenceMessenger.Default.Send(new IsLoadingSourceMessage(true));
             await foreach (var gamePage in siteManager.GetFeedFromGalleryPage(CancellationTokenSource.Token))
             {
                 gamePage.Name = gamePage.Name.ToCapital();
                 singleton.GamePageList.Add(gamePage);
-                if (ProgressRingIsActive)
+                if (_isLoading)
                 {
                     CurrentPage = singleton.GamePageList.ElementAt(++gamePageListIndex);
-                    DeactivateLoading();
+                    _isLoading = false;
+                    WeakReferenceMessenger.Default.Send(new IsLoadingSourceMessage(false));
                 }
             }
             isBackgroundWorkerRunning = false;
-            DeactivateLoading();
+            WeakReferenceMessenger.Default.Send(new IsLoadingSourceMessage(false));
         }
         catch
         {
-            DeactivateLoading();
+            WeakReferenceMessenger.Default.Send(new IsLoadingSourceMessage(false));
             isBackgroundWorkerRunning = false;
         }
-    }
-    private void ActivateLoading()
-    {
-        ProgressRingIsActive = true;
-        ProgressRingVisibility = Visibility.Visible;
-    }
-    private void DeactivateLoading()
-    {
-        ProgressRingIsActive = false;
-        ProgressRingVisibility = Visibility.Collapsed;
     }
 }

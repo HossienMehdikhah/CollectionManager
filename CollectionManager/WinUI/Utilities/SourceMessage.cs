@@ -12,3 +12,8 @@ public class CurrentPageSourceMessage(GamePageDTO currentPage)
     : ValueChangedMessage<GamePageDTO>(currentPage)
 {
 }
+
+public class IsLoadingSourceMessage(bool Isloading)
+    : ValueChangedMessage<bool>(Isloading)
+{
+}

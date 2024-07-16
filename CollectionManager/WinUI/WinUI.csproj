@@ -17,6 +17,7 @@
   <ItemGroup>
     <None Remove="Pages\ListedView.xaml" />
     <None Remove="UserControls\GamelistedViewUserControl.xaml" />
+    <None Remove="UserControls\LoadingUserControl.xaml" />
     <None Remove="Views\DisplayGameView.xaml" />
     <None Remove="Views\ShellPage.xaml" />
   </ItemGroup>
@@ -73,5 +74,13 @@
     <Page Update="Views\ShellPage.xaml">
       <Generator>MSBuild:Compile</Generator>
     </Page>
+  </ItemGroup>
+
+  <ItemGroup>
+    <CustomAdditionalCompileInputs Remove="UserControls\LoadingUserControl.xaml" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Resource Remove="UserControls\LoadingUserControl.xaml" />
   </ItemGroup>
 </Project>

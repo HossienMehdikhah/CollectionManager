@@ -5,11 +5,10 @@ namespace CollectionManager.WinUI.Pages;
 
 public sealed partial class SearchPage : Page
 {
+    private SearchPageViewModel ViewModel { get => (SearchPageViewModel)DataContext; }
     public SearchPage()
     {
         DataContext = App.GetService<SearchPageViewModel>();
         InitializeComponent();
     }
-
-    public SearchPageViewModel ViewModel { get => (SearchPageViewModel)DataContext; }
 }

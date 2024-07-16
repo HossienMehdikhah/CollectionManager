@@ -22,8 +22,6 @@ public class DIConfig
 {
     public static IServiceCollection Config(IServiceCollection services)
     {
-        Pages(services);
-        UserControls(services);
         ViewModels(services);
         Managers(services);
         Services(services);
@@ -32,19 +30,7 @@ public class DIConfig
         services.AddSingleton<FeedPageViewModelSingleton>();
         services.AddSingleton<SearchPageViewModelSingleton>();
         return services;
-    }
-    private static void Pages(IServiceCollection services)
-    {
-        services.AddTransient<ShellPage>();
-        services.AddTransient<FeedPage>();
-        services.AddTransient<SearchPage>();
-        services.AddTransient<MarketGameListedPage>();
-        services.AddTransient<DisplayGameView>();
-    }
-    private static void UserControls(IServiceCollection services)
-    {
-        services.AddTransient<ContentDisplayUserControl>();        
-    }
+    }       
     private static void ViewModels(IServiceCollection services)
     {
         services.AddTransient<FeedPageViewModel>();
@@ -54,6 +40,7 @@ public class DIConfig
         services.AddTransient<GamelistedViewUserControlViewModel>();
         services.AddTransient<DisplayGameViewModel>();
         services.AddTransient<MarketGameListedPageViewModel>();
+        services.AddTransient<LoadingUserControlViewModel>();
     }
     private static void Managers(IServiceCollection services)
     {

@@ -23,7 +23,7 @@ public partial class SearchPageViewModel(SiteManager siteManager,
 
     public void OnNavigatedFrom()
     {
-        
+
     }
 
     public void OnNavigatedTo(object parameter)
@@ -36,10 +36,12 @@ public partial class SearchPageViewModel(SiteManager siteManager,
     [RelayCommand]
     private void Search(string searchQuery)
     {
+        WeakReferenceMessenger.Default.Send(new IsLoadingSourceMessage(true));
         singleton.GamePages.Clear();
         singleton.QuerySearch = searchQuery;
         IncrementalSourceFromWebSite searchResultCollection = new(siteManager, searchQuery);
         IncrementalLoadingCollection<IIncrementalSource<GamePageDTO>, GamePageDTO> collection = new(searchResultCollection);
+        collection.OnEndLoading = () => WeakReferenceMessenger.Default.Send(new IsLoadingSourceMessage(false));
         collection.CollectionChanged += Collection_CollectionChanged;
         WeakReferenceMessenger.Default.Send(new IncrementalSourceMessage(collection));
     }

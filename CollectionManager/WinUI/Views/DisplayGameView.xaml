@@ -11,12 +11,7 @@
     xmlns:usercontrols="using:CollectionManager.WinUI.UserControls"
     mc:Ignorable="d">
     <Grid>
-        <Grid
-            Canvas.ZIndex="10"
-            Opacity="0.8"
-            Visibility="{x:Bind ViewModel.ProgressRingVisibility, Mode=OneWay}">
-            <ProgressRing x:Name="progressRing" IsActive="{x:Bind ViewModel.ProgressRingIsActive, Mode=OneWay}" />
-        </Grid>
+        <usercontrols:LoadingUserControl />
         <usercontrols:ContentDisplayUserControl Margin="10,5,10,10" />
     </Grid>
 </Page>
