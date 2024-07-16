@@ -58,10 +58,10 @@ public partial class Par30gamesSiteCrawler(ILogger<Par30gamesSiteCrawler> logger
     }
     public Task<GamePageDTO> GetPageAsync(Uri uri)
     {
-        PostDTO post  = new() 
-        { 
+        PostDTO post = new()
+        {
             URL = uri,
-            Name = ExtractionNameFromURL(uri),            
+            Name = ExtractionNameFromURL(uri),
         };
         return GetGamePageAsync(post);
     }
@@ -86,7 +86,7 @@ public partial class Par30gamesSiteCrawler(ILogger<Par30gamesSiteCrawler> logger
             var Articles = ExtractionPosts(document);
             return Articles;
         }
-        catch(NotFundHtmlSectionException e)
+        catch (NotFundHtmlSectionException e)
         {
             logger.LogWarning(e, "");
             return [];
@@ -141,8 +141,8 @@ public partial class Par30gamesSiteCrawler(ILogger<Par30gamesSiteCrawler> logger
     private static Uri ExtractionPostThumbnail(IElement node)
     {
         var imgElement = node.QuerySelector("a img") ?? throw new NotFundHtmlSectionException();
-        var link = imgElement.Attributes["data-src"] 
-            ?? imgElement.Attributes["src"] 
+        var link = imgElement.Attributes["data-src"]
+            ?? imgElement.Attributes["src"]
             ?? throw new NotFundHtmlSectionException();
         return new Uri(System.Web.HttpUtility.UrlDecode(link.Value));
     }
@@ -175,7 +175,7 @@ public partial class Par30gamesSiteCrawler(ILogger<Par30gamesSiteCrawler> logger
             .Where(x => !string.IsNullOrEmpty(x));
         temp = temp.Take(temp.Count() - 4);
         return string.Join("\\n", temp);
-    }    
+    }
     private DateOnly GetDateTime(IDocument node)
     {
         var clockNode = node.QuerySelector(".icon-days").NextSibling;
@@ -250,7 +250,8 @@ public partial class Par30gamesSiteCrawler(ILogger<Par30gamesSiteCrawler> logger
     private string GetEncoderTeamName(IElement document)
     {
         var text = RegexHelper.RemoveWhiteSpace(document.TextContent);
-        var encoderName = text.Replace(document.Children[1].InnerHtml, "").Trim();
+        var encoderName = string.IsNullOrWhiteSpace(document.Children[1].InnerHtml) 
+            ? text : text.Replace(document.Children[1].InnerHtml, "").Trim();
         return encoderName;
     }
     private string GetTotalValue(IElement document)
@@ -262,8 +263,8 @@ public partial class Par30gamesSiteCrawler(ILogger<Par30gamesSiteCrawler> logger
             value += " MB";
         return value;
     }
-   
-    
+
+
 
 
 

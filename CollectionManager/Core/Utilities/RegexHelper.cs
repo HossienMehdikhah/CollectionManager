@@ -20,7 +20,10 @@ public static partial class RegexHelper
     public static string TakeNumber(string input)
     {
         var temp = RemoveWhiteSpace(input);
-        return TakeNumberPattern().Matches(temp).First(x => !string.IsNullOrWhiteSpace(x.Value)).Value;
+        var value = TakeNumberPattern().Matches(temp).FirstOrDefault(x => !string.IsNullOrWhiteSpace(x.Value));
+        if (value is null) 
+            return string.Empty;
+        return value.Value;
     }
     public static string TakeBetweenQuote(string input)
     {
