@@ -1,8 +1,6 @@
-﻿using CollectionManager.Core.Models;
-using CollectionManager.WinUI.Config;
+﻿using CollectionManager.WinUI.Config;
 using CollectionManager.WinUI.Contracts;
 using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.UI.Xaml;
@@ -18,8 +16,7 @@ public partial class App : Application
         builder.Configuration.AddJsonFile("appsettings.json");
         builder.Logging.ClearProviders();
         builder.Logging.AddDebug();
-        DIConfig.Config(builder.Services);
-        builder.Services.Configure<CollectionManagerOption>(builder.Configuration.GetRequiredSection(nameof(CollectionManagerOption)));
+        DIConfig.Config(builder.Services, builder.Configuration);
         Host = builder.Build();
         
     }

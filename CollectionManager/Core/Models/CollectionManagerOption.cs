@@ -3,4 +3,5 @@ public class CollectionManagerOption
 {
     public uint MaxAvailablePost { get; set; }
     public uint SearchThreshold { get; set; }
+    public uint MaxPageCash { get; set; }
 }

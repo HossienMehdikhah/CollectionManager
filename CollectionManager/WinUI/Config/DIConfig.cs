@@ -2,26 +2,26 @@
 using CollectionManager.Core.Contracts.Services;
 using CollectionManager.Core.Factories;
 using CollectionManager.Core.Managers;
+using CollectionManager.Core.Models;
 using CollectionManager.Core.Services;
 using CollectionManager.Core.Utilities;
 using CollectionManager.WinUI.Activations;
 using CollectionManager.WinUI.Contracts;
-using CollectionManager.WinUI.Pages;
 using CollectionManager.WinUI.Services;
 using CollectionManager.WinUI.Singleton;
-using CollectionManager.WinUI.UserControls;
 using CollectionManager.WinUI.ViewModels;
-using CollectionManager.WinUI.Views;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.UI.Xaml;
 using WinUI;
+using Microsoft.Extensions.Configuration;
 namespace CollectionManager.WinUI.Config;
 
 public class DIConfig
 {
-    public static IServiceCollection Config(IServiceCollection services)
+    public static IServiceCollection Config(IServiceCollection services, ConfigurationManager configuration)
     {
+        services.Configure<CollectionManagerOption>(configuration.GetRequiredSection(nameof(CollectionManagerOption)));
         ViewModels(services);
         Managers(services);
         Services(services);
@@ -29,6 +29,7 @@ public class DIConfig
         services.AddTransient<AngleSharpFactory>();
         services.AddSingleton<FeedPageViewModelSingleton>();
         services.AddSingleton<SearchPageViewModelSingleton>();
+        services.AddSingleton<DisplayGamePageViewModelSingleton>();
         return services;
     }       
     private static void ViewModels(IServiceCollection services)

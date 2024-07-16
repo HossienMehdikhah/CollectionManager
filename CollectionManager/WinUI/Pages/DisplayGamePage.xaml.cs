@@ -3,9 +3,9 @@ using Microsoft.UI.Xaml.Controls;
 using WinUI;
 namespace CollectionManager.WinUI.Views;
 
-public sealed partial class DisplayGameView : Page
+public sealed partial class DisplayGamePage : Page
 {
-    public DisplayGameView()
+    public DisplayGamePage()
     {
         DataContext = App.GetService<DisplayGameViewModel>();
         InitializeComponent();

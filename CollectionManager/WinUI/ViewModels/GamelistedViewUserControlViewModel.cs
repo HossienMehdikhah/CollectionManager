@@ -28,6 +28,6 @@ public partial class GamelistedViewUserControlViewModel : ObservableObject
     [RelayCommand]
     public void ItemClick(ItemClickEventArgs e)
     {
-        _navigationService.NavigateTo(typeof(DisplayGameView).FullName!, (GamePageDTO)e.ClickedItem);
+        _navigationService.NavigateTo(typeof(DisplayGamePage).FullName!, (GamePageDTO)e.ClickedItem);
     }
 }

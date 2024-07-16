@@ -18,7 +18,7 @@
     <None Remove="Pages\ListedView.xaml" />
     <None Remove="UserControls\GamelistedViewUserControl.xaml" />
     <None Remove="UserControls\LoadingUserControl.xaml" />
-    <None Remove="Views\DisplayGameView.xaml" />
+    <None Remove="Views\DisplayGamePage.xaml" />
     <None Remove="Views\ShellPage.xaml" />
   </ItemGroup>
   <ItemGroup>
@@ -59,7 +59,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Page Update="Views\DisplayGameView.xaml">
+    <Page Update="Views\DisplayGamePage.xaml">
       <Generator>MSBuild:Compile</Generator>
     </Page>
   </ItemGroup>
