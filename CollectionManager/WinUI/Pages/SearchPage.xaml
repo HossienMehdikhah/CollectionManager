@@ -24,36 +24,34 @@
                 <RowDefinition Height="auto" />
                 <RowDefinition Height="*" />
             </Grid.RowDefinitions>
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="6*" />
-                <ColumnDefinition Width="10*" />
-                <ColumnDefinition Width="6*" />
-            </Grid.ColumnDefinitions>
 
             <!--  SearchBar  -->
-            <Grid
-                Grid.Row="0"
-                Grid.Column="1"
-                Margin="10,5,10,5">
+            <Grid Grid.Row="0">
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="4*" />
-                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="8*" />
+                    <ColumnDefinition Width="10*" />
+                    <ColumnDefinition Width="8*" />
                 </Grid.ColumnDefinitions>
-                <TextBox
-                    x:Name="SearchComboBox"
-                    Background="Gray"
-                    PlaceholderText="Search..." />
-                <Button Grid.Column="1">
-                    <StackPanel>
+                <Grid Grid.Column="1" Margin="10,5,10,5">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="8*" />
+                        <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+                    <TextBox
+                        x:Name="SearchComboBox"
+                        Grid.Column="0"
+                        Background="Gray"
+                        PlaceholderText="Search..."
+                        Text="{x:Bind ViewModel.SearchQuery, Mode=OneWay}" />
+                    <Button Grid.Column="1">
                         <SymbolIcon Symbol="Find" />
-                        <TextBlock />
-                    </StackPanel>
-                    <interactivity:Interaction.Behaviors>
-                        <core:EventTriggerBehavior EventName="Click">
-                            <core:InvokeCommandAction Command="{x:Bind ViewModel.SearchCommand}" CommandParameter="{Binding ElementName=SearchComboBox, Path=Text}" />
-                        </core:EventTriggerBehavior>
-                    </interactivity:Interaction.Behaviors>
-                </Button>
+                        <interactivity:Interaction.Behaviors>
+                            <core:EventTriggerBehavior EventName="Click">
+                                <core:InvokeCommandAction Command="{x:Bind ViewModel.SearchCommand}" CommandParameter="{Binding ElementName=SearchComboBox, Path=Text}" />
+                            </core:EventTriggerBehavior>
+                        </interactivity:Interaction.Behaviors>
+                    </Button>
+                </Grid>
             </Grid>
             <!--  SearchBar  -->
 

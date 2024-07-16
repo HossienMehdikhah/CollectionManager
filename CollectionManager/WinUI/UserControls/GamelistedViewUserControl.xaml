@@ -12,7 +12,6 @@
     mc:Ignorable="d">
     <ListView
         x:Name="listView"
-        IncrementalLoadingTrigger="Edge"
         IsItemClickEnabled="True"
         ItemsSource="{x:Bind ViewModel.GamePages, Mode=OneWay}"
         SelectionMode="None">

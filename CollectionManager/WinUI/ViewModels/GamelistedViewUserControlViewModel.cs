@@ -5,8 +5,8 @@ using CollectionManager.WinUI.Views;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.Messaging;
-using CommunityToolkit.WinUI.Collections;
 using Microsoft.UI.Xaml.Controls;
+using System.Collections.ObjectModel;
 namespace CollectionManager.WinUI.ViewModels;
 
 public partial class GamelistedViewUserControlViewModel : ObservableObject
@@ -18,12 +18,12 @@ public partial class GamelistedViewUserControlViewModel : ObservableObject
         _navigationService = navigationService;
         WeakReferenceMessenger.Default.Register<IncrementalSourceMessage>(this, (r, m) =>
         {
-            ((GamelistedViewUserControlViewModel)r).GamePages = new(m.Value);
+            ((GamelistedViewUserControlViewModel)r).GamePages = m.Value;
             OnPropertyChanged(nameof(GamePages));
         });
     }
 
-    public IncrementalLoadingCollection<IIncrementalSource<GamePageDTO>, GamePageDTO>? GamePages { get; set; }
+    public ObservableCollection<GamePageDTO>? GamePages { get; set; }
 
     [RelayCommand]
     public void ItemClick(ItemClickEventArgs e)

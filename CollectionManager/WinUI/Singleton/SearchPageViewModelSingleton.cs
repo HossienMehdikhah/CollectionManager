@@ -1,12 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
+﻿using CollectionManager.Core.Models;
 namespace CollectionManager.WinUI.Singleton;
 
 public class SearchPageViewModelSingleton
 {
-    
+    public string QuerySearch { get; set; } = string.Empty;
+    public List<GamePageDTO> GamePages { get; set; } = [];
 }

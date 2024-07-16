@@ -1,10 +1,10 @@
 ﻿using CollectionManager.Core.Models;
 using CommunityToolkit.Mvvm.Messaging.Messages;
-using CommunityToolkit.WinUI.Collections;
+using System.Collections.ObjectModel;
 namespace CollectionManager.WinUI.Utilities;
 
-public class IncrementalSourceMessage(IIncrementalSource<GamePageDTO> incrementalSource)
-    : ValueChangedMessage<IIncrementalSource<GamePageDTO>>(incrementalSource)
+public class IncrementalSourceMessage(ObservableCollection<GamePageDTO> incrementalSource)
+    : ValueChangedMessage<ObservableCollection<GamePageDTO>>(incrementalSource)
 {
 }
 

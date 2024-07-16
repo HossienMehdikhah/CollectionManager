@@ -8,7 +8,7 @@ using CommunityToolkit.WinUI.Collections;
 using WinUI;
 namespace CollectionManager.WinUI.ViewModels;
 
-public partial class MarketGameListedPageViewModel : ObservableObject, INavigationAware
+public partial class MarketGameListedPageViewModel(SiteManager siteManager) : ObservableObject, INavigationAware
 {
     public void OnNavigatedFrom()
     {
@@ -18,8 +18,8 @@ public partial class MarketGameListedPageViewModel : ObservableObject, INavigati
     public void OnNavigatedTo(object parameter)
     {
         var markettype = Enum.Parse<MarkedType>((string)parameter);
-        IIncrementalSource<GamePageDTO> databseCollection = new
-                IncrementalSourceFromDbByMarktype(App.GetService<SiteManager>(), markettype);
-        WeakReferenceMessenger.Default.Send(new IncrementalSourceMessage(databseCollection));
+        IncrementalSourceFromDbByMarktype databseCollection = new(siteManager, markettype);
+        IncrementalLoadingCollection<IIncrementalSource<GamePageDTO>, GamePageDTO> collection = new(databseCollection);
+        WeakReferenceMessenger.Default.Send(new IncrementalSourceMessage(collection));
     }
 }
