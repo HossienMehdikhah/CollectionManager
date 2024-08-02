@@ -30,19 +30,24 @@ public partial class ContentDisplayUserControlViewModel : ObservableObject
                         IsUpdateButtonChecked = true;
                         break;
                     }
-                case MarkedType.Marked:
+                case MarkedType.Intresting:
                     {
-                        IsMarkedButtonChecked = true;
+                        IsIntrestingButtonChecked = true;
                         break;
                     }
-                case MarkedType.Seen:
+                case MarkedType.Unintresting:
                     {
-                        IsSeenButtonChecked = true;
+                        IsUnintrestingButtonChecked = true;
                         break;
                     }
                 case MarkedType.EarlyAccess:
                     {
                         IsEralyAccesButtonChecked = true;
+                        break;
+                    }
+                case MarkedType.Tested:
+                    {
+                        IsTestedButtonChecked = true;
                         break;
                     }
             }
@@ -53,11 +58,13 @@ public partial class ContentDisplayUserControlViewModel : ObservableObject
     [ObservableProperty]
     private bool isUpdateButtonChecked;
     [ObservableProperty]
-    private bool isMarkedButtonChecked;
+    private bool isIntrestingButtonChecked;
     [ObservableProperty]
-    private bool isSeenButtonChecked;
+    private bool isUnintrestingButtonChecked;
     [ObservableProperty]
     private bool isEralyAccesButtonChecked;
+    [ObservableProperty]
+    private bool isTestedButtonChecked;
     private readonly SiteManager _siteManager;
 
     public ContentDisplayUserControlViewModel(SiteManager siteManager)
@@ -65,7 +72,7 @@ public partial class ContentDisplayUserControlViewModel : ObservableObject
         _siteManager = siteManager;
         WeakReferenceMessenger.Default.Register<CurrentPageSourceMessage>(this, (r, m) =>
         {
-           CurrentPage = m.Value;
+            CurrentPage = m.Value;
         });
     }
 
@@ -77,18 +84,18 @@ public partial class ContentDisplayUserControlViewModel : ObservableObject
         IsUpdateButtonChecked = true;
     }
     [RelayCommand]
-    private async Task AddToMarkedCollection()
+    private async Task AddToIntrestingCollection()
     {
-        await _siteManager.AddToMarkCollection(CurrentPage);
+        await _siteManager.AddToIntrestingCollection(CurrentPage);
         IsCheckedAll(false);
-        IsMarkedButtonChecked = true;
+        IsIntrestingButtonChecked = true;
     }
     [RelayCommand]
-    private async Task AddToSeenCollection()
+    private async Task AddToUnintrestingCollection()
     {
-        await _siteManager.AddToSeenCollection(CurrentPage);
+        await _siteManager.AddToUnintrestingCollection(CurrentPage);
         IsCheckedAll(false);
-        IsSeenButtonChecked = true;
+        IsUnintrestingButtonChecked = true;
 
     }
     [RelayCommand]
@@ -97,6 +104,13 @@ public partial class ContentDisplayUserControlViewModel : ObservableObject
         await _siteManager.AddToEarlyAccessCollection(CurrentPage);
         IsCheckedAll(false);
         IsEralyAccesButtonChecked = true;
+    }
+    [RelayCommand]
+    private async Task AddToTestedCollection()
+    {
+        await _siteManager.AddToTesedCollection(CurrentPage);
+        IsCheckedAll(false);
+        IsTestedButtonChecked = true;
     }
     [RelayCommand]
     private async Task ShowImageAsBiggerSize(string selectedImageUri)
@@ -117,7 +131,7 @@ public partial class ContentDisplayUserControlViewModel : ObservableObject
     [RelayCommand]
     private void DownloadLinkSelectionConfirm(TreeView item)
     {
-        var temp = item.SelectedItems.Where(x => x is DownloadURIDTO).Cast<DownloadURIDTO>().Select(x=>x.Uri).ToList();
+        var temp = item.SelectedItems.Where(x => x is DownloadURIDTO).Cast<DownloadURIDTO>().Select(x => x.Uri).ToList();
         Broker.AddToIDMDownLoadList(temp);
     }
 
@@ -145,8 +159,9 @@ public partial class ContentDisplayUserControlViewModel : ObservableObject
     private void IsCheckedAll(bool isChecked)
     {
         IsUpdateButtonChecked = isChecked;
-        IsMarkedButtonChecked = isChecked;
-        IsSeenButtonChecked = isChecked;
+        IsIntrestingButtonChecked = isChecked;
+        IsUnintrestingButtonChecked = isChecked;
         IsEralyAccesButtonChecked = isChecked;
+        IsTestedButtonChecked = isChecked;
     }
 }

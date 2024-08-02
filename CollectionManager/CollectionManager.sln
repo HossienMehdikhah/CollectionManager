@@ -7,7 +7,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Core", "Core\Core.csproj", 
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ConsoleApp", "ConsoleApp\ConsoleApp.csproj", "{D26877EE-F59F-4E83-B3A8-A41F14F0EBA8}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WinUI", "WinUI\WinUI.csproj", "{41322126-251B-4774-8747-DAB58DC2BB28}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WinUI", "WinUI\WinUI.csproj", "{41322126-251B-4774-8747-DAB58DC2BB28}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CollectionManagerWebService", "CollectionManagerWebService\CollectionManagerWebService.csproj", "{385B538F-F820-41D1-B67B-D6019C54F46A}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -69,6 +71,22 @@ Global
 		{41322126-251B-4774-8747-DAB58DC2BB28}.Release|x64.Build.0 = Release|x64
 		{41322126-251B-4774-8747-DAB58DC2BB28}.Release|x86.ActiveCfg = Release|x86
 		{41322126-251B-4774-8747-DAB58DC2BB28}.Release|x86.Build.0 = Release|x86
+		{385B538F-F820-41D1-B67B-D6019C54F46A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{385B538F-F820-41D1-B67B-D6019C54F46A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{385B538F-F820-41D1-B67B-D6019C54F46A}.Debug|arm64.ActiveCfg = Debug|Any CPU
+		{385B538F-F820-41D1-B67B-D6019C54F46A}.Debug|arm64.Build.0 = Debug|Any CPU
+		{385B538F-F820-41D1-B67B-D6019C54F46A}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{385B538F-F820-41D1-B67B-D6019C54F46A}.Debug|x64.Build.0 = Debug|Any CPU
+		{385B538F-F820-41D1-B67B-D6019C54F46A}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{385B538F-F820-41D1-B67B-D6019C54F46A}.Debug|x86.Build.0 = Debug|Any CPU
+		{385B538F-F820-41D1-B67B-D6019C54F46A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{385B538F-F820-41D1-B67B-D6019C54F46A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{385B538F-F820-41D1-B67B-D6019C54F46A}.Release|arm64.ActiveCfg = Release|Any CPU
+		{385B538F-F820-41D1-B67B-D6019C54F46A}.Release|arm64.Build.0 = Release|Any CPU
+		{385B538F-F820-41D1-B67B-D6019C54F46A}.Release|x64.ActiveCfg = Release|Any CPU
+		{385B538F-F820-41D1-B67B-D6019C54F46A}.Release|x64.Build.0 = Release|Any CPU
+		{385B538F-F820-41D1-B67B-D6019C54F46A}.Release|x86.ActiveCfg = Release|Any CPU
+		{385B538F-F820-41D1-B67B-D6019C54F46A}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

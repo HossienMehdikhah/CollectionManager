@@ -2,8 +2,9 @@
 public enum MarkedType : byte
 {
     New = 0,
-    Seen = 1,
-    Marked = 2,
+    Unintresting = 1,
+    Intresting = 2,
     EarlyAccess = 3,
     Update = 4,
+    Tested = 5,
 }

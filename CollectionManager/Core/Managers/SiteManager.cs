@@ -47,27 +47,33 @@ public class SiteManager(IGameSiteCrawler _gameSiteCrawler, IOptions<CollectionM
     }
     public async Task AddToUpdateCollection(GamePageDTO gamePageDTO)
     {
+        gamePageDTO.MarkedType = MarkedType.Update;
         await AddToCollection(gamePageDTO, MarkedType.Update);
         await context.SaveChangesAsync();
-        gamePageDTO.MarkedType = MarkedType.Update;
     }
-    public async Task AddToMarkCollection(GamePageDTO gamePageDTO)
+    public async Task AddToIntrestingCollection(GamePageDTO gamePageDTO)
     {
-        await AddToCollection(gamePageDTO, MarkedType.Marked);
+        gamePageDTO.MarkedType = MarkedType.Intresting;
+        await AddToCollection(gamePageDTO, MarkedType.Intresting);
         await context.SaveChangesAsync();
-        gamePageDTO.MarkedType = MarkedType.Marked;
     }
-    public async Task AddToSeenCollection(GamePageDTO gamePageDTO)
+    public async Task AddToUnintrestingCollection(GamePageDTO gamePageDTO)
     {
-        await AddToCollection(gamePageDTO, MarkedType.Seen);
+        gamePageDTO.MarkedType = MarkedType.Unintresting;
+        await AddToCollection(gamePageDTO, MarkedType.Unintresting);
         await context.SaveChangesAsync();
-        gamePageDTO.MarkedType = MarkedType.Seen;
     }
     public async Task AddToEarlyAccessCollection(GamePageDTO gamePageDTO)
     {
+        gamePageDTO.MarkedType = MarkedType.EarlyAccess;
         await AddToCollection(gamePageDTO, MarkedType.EarlyAccess);
         await context.SaveChangesAsync();
-        gamePageDTO.MarkedType = MarkedType.EarlyAccess;
+    }
+    public async Task AddToTesedCollection(GamePageDTO gamePageDTO)
+    {
+        gamePageDTO.MarkedType = MarkedType.Tested;
+        await AddToCollection(gamePageDTO, MarkedType.Tested);
+        await context.SaveChangesAsync();
     }
     public IQueryable<GamePageDTO> GetGameFromDatabase(MarkedType markedType)
     {
@@ -85,27 +91,32 @@ public class SiteManager(IGameSiteCrawler _gameSiteCrawler, IOptions<CollectionM
 
     private async Task AddToCollection(GamePageDTO gamePageDTO, MarkedType type)
     {
-        var isDuplicated = await context.Games.FirstOrDefaultAsync(x => x.Name.Equals(DatabaseNameNormalizer(gamePageDTO.Name)));
-
-        if (isDuplicated is null)
+        try
         {
-            await context.Games.AddAsync(new GameSet
+            var duplicated = await context.Games
+                .SingleOrDefaultAsync(x => x.Name.Equals(DatabaseNameNormalizer(gamePageDTO.Name)));
+            if (duplicated is null)
             {
-                MarkedType = type,
-                Name = DatabaseNameNormalizer(gamePageDTO.Name),
-                Uri = gamePageDTO.URL,
-                Thumbnail = gamePageDTO.Thumbnail,
-            });
+                await context.Games.AddAsync(new GameSet
+                {
+                    MarkedType = type,
+                    Name = DatabaseNameNormalizer(gamePageDTO.Name),
+                    Uri = gamePageDTO.URL,
+                    Thumbnail = gamePageDTO.Thumbnail,
+                });
+            }
+            else
+                context.Games.Entry(duplicated).Entity.MarkedType = type;
         }
-        else
-            context.Games.Entry(isDuplicated).Entity.MarkedType = type;
+        catch
+        { }
     }
     private async Task DefineGameType(GamePageDTO gamePage)
     {
         var gameGroup = await context.Games.FirstOrDefaultAsync(x => x.Name.Equals(DatabaseNameNormalizer(gamePage.Name)));
         gamePage.MarkedType = gameGroup is null ? MarkedType.New : gameGroup.MarkedType;
     }
-    private string DatabaseNameNormalizer(string name)
+    private static string DatabaseNameNormalizer(string name)
     {
         return name.ToLower();
     }

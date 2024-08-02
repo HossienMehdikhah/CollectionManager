@@ -5,7 +5,7 @@ using CollectionManager.Core.Models;
 using Microsoft.UI.Xaml.Media.Imaging;
 namespace CollectionManager.WinUI.UserControls;
 
-public sealed partial class ContentDisplayUserControl : UserControl
+public partial class ContentDisplayUserControl : UserControl
 {
     public ContentDisplayUserControl()
     {
