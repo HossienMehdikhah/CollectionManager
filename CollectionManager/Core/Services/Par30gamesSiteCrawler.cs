@@ -21,6 +21,7 @@ public partial class Par30gamesSiteCrawler(ILogger<Par30gamesSiteCrawler> logger
     public async Task<IEnumerable<PostDTO>> GetPostsAsync(uint skip, uint take,
         CancellationToken cancellationToken)
     {
+       
         try
         {
             var skipPage = skip / maxPostPerPage;
@@ -263,12 +264,7 @@ public partial class Par30gamesSiteCrawler(ILogger<Par30gamesSiteCrawler> logger
             value += " MB";
         return value;
     }
-
-
-
-
-
-    private Uri GetThumbnail(IDocument document)
+    private static Uri GetThumbnail(IDocument document)
     {
         var postHeaderNode = document.QuerySelector(".review > div.pic > img") ?? throw new Exception();
         var link = System.Web.HttpUtility.UrlDecode(postHeaderNode.Attributes["data-src"]?.Value);

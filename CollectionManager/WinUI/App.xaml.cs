@@ -4,21 +4,30 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.UI.Xaml;
+using Serilog;
 using WinUIEx;
 namespace WinUI;
 public partial class App : Application
 {
     public App()
     {
-        InitializeComponent();
         UnhandledException += App_UnhandledException;
         var builder = Microsoft.Extensions.Hosting.Host.CreateApplicationBuilder();
         builder.Configuration.AddJsonFile("appsettings.json");
         builder.Logging.ClearProviders();
-        builder.Logging.AddDebug();
+        builder.Services.AddSerilog(loggerConfiguration => loggerConfiguration
+        .ReadFrom.Configuration(builder.Configuration));
         DIConfig.Config(builder.Services, builder.Configuration);
         Host = builder.Build();
-        
+
+        try
+        {
+            InitializeComponent();
+        }
+        catch (Exception ex)
+        {
+            throw;
+        }
     }
 
     public IHost Host
