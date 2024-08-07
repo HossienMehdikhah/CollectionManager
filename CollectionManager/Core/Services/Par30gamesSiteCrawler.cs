@@ -4,8 +4,10 @@ using CollectionManager.Core.Contracts.Services;
 using CollectionManager.Core.Factories;
 using CollectionManager.Core.Models;
 using CollectionManager.Core.Utilities;
+using Flurl;
 using Flurl.Http;
 using Microsoft.Extensions.Logging;
+using System;
 using System.Globalization;
 using System.Runtime.CompilerServices;
 using System.Text.RegularExpressions;
@@ -18,45 +20,71 @@ public partial class Par30gamesSiteCrawler(ILogger<Par30gamesSiteCrawler> logger
     private const string seachUrl = baseUrl + "/?s=+دانلود+{0}+pc";
     private const byte maxPostPerPage = 8;
 
-    public async Task<IEnumerable<PostDTO>> GetPostsAsync(uint skip, uint take,
-        CancellationToken cancellationToken)
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="skip"></param>
+    /// <param name="take"></param>
+    /// <param name="cancellationToken"></param>
+    /// <returns></returns>
+    public async IAsyncEnumerable<PostDTO> GetPostsAsync(uint skip, uint take,
+        [EnumeratorCancellation] CancellationToken cancellationToken)
     {
-       
-        try
+        var skipPage = skip / maxPostPerPage;
+        Uri uri = new(string.Format(feedUrl, ++skipPage));
+        foreach (var item in await GetPostsAsyncLocal(uri))
         {
-            var skipPage = skip / maxPostPerPage;
-            Uri uri = new(string.Format(feedUrl, ++skipPage));
-            var posts = await GetPostsAsync(uri, cancellationToken);
-            return posts;
-        }
-        catch
+            yield return item;
+        } 
+
+        Task<IEnumerable<PostDTO>> GetPostsAsyncLocal(Uri uri)
         {
-            throw;
+            try
+            {
+                return GetPostsAsync(uri, cancellationToken);
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex, "");
+                return Task.FromResult(new List<PostDTO>().AsEnumerable());
+            }
         }
     }
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="posts"></param>
+    /// <param name="cancellationToken"></param>
+    /// <returns></returns>
     public async IAsyncEnumerable<GamePageDTO> GetGamePagesAsync(IEnumerable<PostDTO> posts,
         [EnumeratorCancellation] CancellationToken cancellationToken = default)
     {
         IBrowsingContext context = AngleSharpFactory.CreateDefault();
         foreach (var post in posts)
         {
-            GamePageDTO gamepage = new();
+            var gamePage = await GetGamePagesAsyncLocal(post);
+            if (gamePage is not null)
+                yield return gamePage;
+        }
+
+        async Task<GamePageDTO?> GetGamePagesAsyncLocal(PostDTO post)
+        {
             try
             {
-                gamepage = await GetGamePageAsync(post, context, cancellationToken);
+                return await GetGamePageAsync(post, context, cancellationToken);
             }
-            catch (NotFundHtmlSectionException e)
+            catch (Exception ex)
             {
-                logger.LogError(e, "");
-                continue;
+                logger.LogError(ex, "");
+                return await Task.FromResult(null as GamePageDTO);
             }
-            catch
-            {
-                throw;
-            }
-            yield return gamepage;
         }
     }
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="uri"></param>
+    /// <returns></returns>
     public Task<GamePageDTO> GetPageAsync(Uri uri)
     {
         PostDTO post = new()
@@ -66,89 +94,149 @@ public partial class Par30gamesSiteCrawler(ILogger<Par30gamesSiteCrawler> logger
         };
         return GetGamePageAsync(post);
     }
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="query"></param>
+    /// <param name="cancellationToken"></param>
+    /// <returns></returns>
     public async IAsyncEnumerable<PostDTO> SearchAsync(string query,
         [EnumeratorCancellation] CancellationToken cancellationToken)
     {
         var uri = string.Format(seachUrl, query);
-        foreach (var post in await GetPostsAsync(new Uri(uri), cancellationToken))
+        foreach (var post in await SearchAsyncLocal())
         {
             yield return post;
+        }
+
+        Task<IEnumerable<PostDTO>> SearchAsyncLocal()
+        {
+            try
+            {
+                return GetPostsAsync(new Uri(uri), cancellationToken);
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex, "");
+                return Task.FromResult(new List<PostDTO>().AsEnumerable());
+            }
         }
     }
 
     #region Posts
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="uri"></param>
+    /// <param name="cancellationToken"></param>
+    /// <returns></returns>
     private async Task<IEnumerable<PostDTO>> GetPostsAsync(Uri uri, CancellationToken cancellationToken = default)
     {
-        try
-        {
-            var browsingContext = AngleSharpFactory.CreateDefault();
-            var stringDocument = await uri.GetStringAsync(cancellationToken: cancellationToken);
-            var document = await browsingContext.OpenAsync(x => x.Content(stringDocument), cancellationToken);
-            var Articles = ExtractionPosts(document);
-            return Articles;
-        }
-        catch (NotFundHtmlSectionException e)
-        {
-            logger.LogWarning(e, "");
-            return [];
-        }
-        catch
-        {
-            throw;
-        }
+        var browsingContext = AngleSharpFactory.CreateDefault();
+        var stringDocument = await uri.GetStringAsync(cancellationToken: cancellationToken);
+        var document = await browsingContext.OpenAsync(x => x.Content(stringDocument), cancellationToken);
+        var Articles = ExtractionPosts(document);
+        return Articles;
     }
-    private static List<PostDTO> ExtractionPosts(IDocument document)
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="document"></param>
+    /// <returns></returns>
+    /// <exception cref="HtmlSectionNotFoundException"></exception>
+    private List<PostDTO> ExtractionPosts(IDocument document)
     {
         var Articles = document.QuerySelectorAll(".post.icon-steam");
         if (Articles.Length == 0)
-            throw new NotFundHtmlSectionException();
+            throw new HtmlSectionNotFoundException();
         List<PostDTO> posts = [];
         foreach (var Article in Articles)
         {
-            var url = ExtractionPostUrl(Article);
-            posts.Add(new PostDTO
+            try
             {
-                Name = ExtractionNameFromURL(url),
-                URL = url,
-                Thumbnail = ExtractionPostThumbnail(Article),
-            });
+                var url = ExtractionPostUrl(Article);
+                posts.Add(new PostDTO
+                {
+                    Name = ExtractionNameFromURL(url),
+                    URL = url,
+                    Thumbnail = ExtractionPostThumbnail(Article),
+                });
+            }
+            catch (HtmlSectionNotFoundException ex)
+            {
+                logger.LogError(ex, "");
+                continue;
+            }
         }
         return posts;
     }
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="node"></param>
+    /// <returns></returns>
+    /// <exception cref="HtmlSectionNotFoundException"></exception>
     private static Uri ExtractionPostUrl(IElement node)
     {
-        var hrefElement = node.QuerySelector("header h2 a") ?? throw new NotFundHtmlSectionException();
-        var link = hrefElement.Attributes["href"] ?? throw new NotFundHtmlSectionException();
+        var hrefElement = node.QuerySelector("header h2 a") ?? throw new HtmlSectionNotFoundException();
+        var link = hrefElement.Attributes["href"] ?? throw new HtmlSectionNotFoundException();
         return new Uri(System.Web.HttpUtility.UrlDecode(link.Value));
     }
-    private static string ExtractionNameFromURL(Uri url)
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="url"></param>
+    /// <returns></returns>
+    /// <exception cref="HtmlSectionNotFoundException"></exception>
+    private string ExtractionNameFromURL(Uri url)
     {
-        var rawTitle = url.Segments[2].Replace("/", "");
-        var result = GetGameNameFromURLPattern()
-                .Matches(rawTitle)
-                .SelectMany(x => x.Groups.Values)
-                .Where(x => !string.IsNullOrEmpty(x.Value))
-                .First(x => x.Name == "gameName").Value;
+        try
+        {
+            var rawTitle = url.Segments[2].Replace("/", "");
+            var result = GetGameNameFromURLPattern()
+                    .Matches(rawTitle)
+                    .SelectMany(x => x.Groups.Values)
+                    .Where(x => !string.IsNullOrEmpty(x.Value))
+                    .First(x => x.Name == "gameName").Value;
 
-        result = result.Replace("-", " ");
-        var gameName = RegexHelper.ConvertRomanNumberToEnglish_Under40(result);
-        return gameName;
+            result = result.Replace("-", " ");
+            var gameName = RegexHelper.ConvertRomanNumberToEnglish_Under40(result);
+            return gameName;
+        }
+        catch (IndexOutOfRangeException ex)
+        {
+            logger.LogError(ex, "");
+            throw new HtmlSectionNotFoundException();
+        }
     }
-    [GeneratedRegex("(?:download-)?" +
-        "(?:(?<gameName>[A-Za-z0-9-]*)-for-pc" +
-        "|(?<gameName>[A-Za-z0-9-]*)" +
-        "|(?<gameName>[A-Za-z0-9-]*)-pc)")]
-    private static partial Regex GetGameNameFromURLPattern();
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="node"></param>
+    /// <returns></returns>
+    /// <exception cref="HtmlSectionNotFoundException"></exception>
     private static Uri ExtractionPostThumbnail(IElement node)
     {
-        var imgElement = node.QuerySelector("a img") ?? throw new NotFundHtmlSectionException();
+        var imgElement = node.QuerySelector("a img") ?? throw new HtmlSectionNotFoundException();
         var link = imgElement.Attributes["data-src"]
             ?? imgElement.Attributes["src"]
-            ?? throw new NotFundHtmlSectionException();
+            ?? throw new HtmlSectionNotFoundException();
         return new Uri(System.Web.HttpUtility.UrlDecode(link.Value));
     }
+    [GeneratedRegex("(?:download-)?" +
+       "(?:(?<gameName>[A-Za-z0-9-]*)-for-pc" +
+       "|(?<gameName>[A-Za-z0-9-]*)" +
+       "|(?<gameName>[A-Za-z0-9-]*)-pc)")]
+    private static partial Regex GetGameNameFromURLPattern();
     #endregion
 
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="post"></param>
+    /// <param name="context"></param>
+    /// <param name="cancellationToken"></param>
+    /// <returns></returns>
     private async Task<GamePageDTO> GetGamePageAsync(PostDTO post, IBrowsingContext? context = null,
         CancellationToken cancellationToken = default)
     {
@@ -159,12 +247,12 @@ public partial class Par30gamesSiteCrawler(ILogger<Par30gamesSiteCrawler> logger
         {
             URL = post.URL,
             Name = post.Name,
-            Thumbnail = GetThumbnail(document),
+            Thumbnail = ParseThumbnailGameLink(document),
             PublishDate = GetDateTime(document),
             CoverLink = GetGameCover(document),
             Summery = GetSummery(document),
-            GalleryLink = GetGalleryLink(document),
-            DownloadLink = GetDownloadLink(document),
+            GalleryLink = ParseGalleryLink(document),
+            DownloadLink = ParseEncoder(document),
         };
         return temp;
     }
@@ -177,30 +265,61 @@ public partial class Par30gamesSiteCrawler(ILogger<Par30gamesSiteCrawler> logger
         temp = temp.Take(temp.Count() - 4);
         return string.Join("\\n", temp);
     }
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="node"></param>
+    /// <returns></returns>
+    /// <exception cref="HtmlSectionNotFoundException"></exception>
     private DateOnly GetDateTime(IDocument node)
     {
-        var clockNode = node.QuerySelector(".icon-days").NextSibling;
+        var clockNode = node.QuerySelector(".icon-days")?.NextSibling ?? throw new HtmlSectionNotFoundException();
         var stringDatetime = clockNode.TextContent.Split(' ').Select(x => x.Trim()).ToArray();
-        stringDatetime[1] = ConstContainer.PersianMonths.First(x => x.Key.Equals(stringDatetime[1])).Value.ToString();
-        var intDatetime = stringDatetime.Where(x => !string.IsNullOrEmpty(x)).Select(int.Parse).ToArray();
-        return new DateOnly(intDatetime[2], intDatetime[1], intDatetime[0], new PersianCalendar());
+        try
+        {
+            stringDatetime[1] = ConstContainer.PersianMonths.First(x => x.Key.Equals(stringDatetime[1])).Value.ToString();
+            var intDatetime = stringDatetime.Where(x => !string.IsNullOrEmpty(x)).Select(int.Parse).ToArray();
+            return new DateOnly(intDatetime[2], intDatetime[1], intDatetime[0], new PersianCalendar());
+        }
+        catch (IndexOutOfRangeException ex)
+        {
+            logger.LogError(ex, "");
+            throw new HtmlSectionNotFoundException();
+        }
     }
-    private Uri? GetGameCover(IDocument document)
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="document"></param>
+    /// <returns></returns>
+    /// <exception cref="HtmlSectionNotFoundException"></exception>
+    private static Uri GetGameCover(IDocument document)
     {
         var imageUrl = document
             .QuerySelectorAll(".thumby.wp-post-image")
-            .Select(x => x.Attributes["src"].Value)
+            .Where(x => x.Attributes["src"] is not null)
+            .Select(x => x.Attributes["src"]!.Value)
             .First(x => x.StartsWith("https"));
-        return new Uri(imageUrl);
+        return imageUrl is not null ? new Uri(imageUrl) : throw new HtmlSectionNotFoundException();
     }
-    private IEnumerable<Uri>? GetGalleryLink(IDocument document)
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="document"></param>
+    /// <returns></returns>
+    private static IEnumerable<Uri> ParseGalleryLink(IDocument document)
     {
         var imagesUrl = document
             .QuerySelectorAll("div.gallery-icon.landscape > a")
-            .Select(x => x.Attributes["href"].Value);
-        return imagesUrl.Select(x => new Uri(x));
+            .Select(x => x.Attributes["href"]?.Value);
+        return imagesUrl.Where(x => !string.IsNullOrWhiteSpace(x)).Select(x => new Uri(x!));
     }
-    private IEnumerable<EncoderTeamDto> GetDownloadLink(IDocument htmlDocument)
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="htmlDocument"></param>
+    /// <returns></returns>
+    private List<EncoderTeamDto> ParseEncoder(IDocument htmlDocument)
     {
         var temp = htmlDocument.QuerySelectorAll(".buttondl");
         var temp1 = htmlDocument.QuerySelectorAll(".buttondl-tab .tab-content div > ul");
@@ -208,24 +327,38 @@ public partial class Par30gamesSiteCrawler(ILogger<Par30gamesSiteCrawler> logger
         List<EncoderTeamDto> encoderTeams = [];
         for (int i = 0; i < temp.Length; i++)
         {
-            var item = temp[i];
-            EncoderTeamDto newEncoder = new()
+            try
             {
-                EncoderName = GetEncoderTeamName(item),
-                TotalValue = GetTotalValue(item),
-                EncoderPackages = GetDownloadAndUpdateLinks(temp1[i]),
-            };
-            encoderTeams.Add(newEncoder);
+                var item = temp[i];
+                EncoderTeamDto newEncoder = new()
+                {
+                    EncoderName = ParseEncoderTeamName(item),
+                    TotalValue = ParsTotalValue(item),
+                    EncoderPackages = ParseEncoderAndDownloadLinks(temp1[i]),
+                };
+                encoderTeams.Add(newEncoder);
+            }
+            catch (HtmlSectionNotFoundException html)
+            {
+                logger.LogError(html, "");
+            }
         }
         return encoderTeams;
     }
-    private IEnumerable<EncoderPackageDTO> GetDownloadAndUpdateLinks(IElement div)
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="div"></param>
+    /// <returns></returns>
+    /// <exception cref="HtmlSectionNotFoundException"></exception>
+    private static IEnumerable<EncoderPackageDTO> ParseEncoderAndDownloadLinks(IElement div)
     {
         Dictionary<string, List<Uri>> dic = [];
         List<Uri> links = [];
         string lastNode = string.Empty;
         foreach (var item in div.Children)
         {
+            //Parse EncoderName
             if (item.NodeName.Equals("B"))
             {
                 if (lastNode != string.Empty)
@@ -235,39 +368,67 @@ public partial class Par30gamesSiteCrawler(ILogger<Par30gamesSiteCrawler> logger
                 }
                 lastNode = RegexHelper.TakeBetweenQuote(item.OuterHtml);
             }
-            else links.Add(new Uri(item.Children[0].Attributes["href"].Value));
+            //Parse Links
+            else
+            {
+                var element = item.Children[0] ?? throw new HtmlSectionNotFoundException();
+                var link = element.Attributes["href"]?.Value ?? throw new HtmlSectionNotFoundException();
+                links.Add(new Uri(link));
+            }
         }
         dic.Add(lastNode, links);
+        uint counter = 1;
         return dic.Select(x => new EncoderPackageDTO
         {
             EncoderPackageName = x.Key,
-            DownloadLink = x.Value.Select(y =>
+            DownloadLink = x.Value.Select(y => new DownloadURIDTO
             {
-                uint counter = 1;
-                return new DownloadURIDTO { PartNumber = $"Part {counter}", Uri = y };
+                PartNumber = $"Part {counter++}",
+                Uri = y
             }),
         });
     }
-    private string GetEncoderTeamName(IElement document)
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="document"></param>
+    /// <returns></returns>
+    private static string ParseEncoderTeamName(IElement document)
     {
         var text = RegexHelper.RemoveWhiteSpace(document.TextContent);
-        var encoderName = string.IsNullOrWhiteSpace(document.Children[1].InnerHtml) 
+        var encoderName = string.IsNullOrWhiteSpace(document.Children[1].InnerHtml)
             ? text : text.Replace(document.Children[1].InnerHtml, "").Trim();
         return encoderName;
     }
-    private string GetTotalValue(IElement document)
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="document"></param>
+    /// <returns></returns>
+    /// <exception cref="HtmlSectionNotFoundException"></exception>
+    private static string ParsTotalValue(IElement document)
     {
         var value = RegexHelper.TakeNumber(document.TextContent);
+        if (string.IsNullOrWhiteSpace(value)) throw new HtmlSectionNotFoundException();
         if (document.TextContent.Contains("گیگابایت"))
             value += " GB";
         else if (document.TextContent.Contains("مگابایت"))
             value += " MB";
+        else
+            value += "Unkown";
         return value;
     }
-    private static Uri GetThumbnail(IDocument document)
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="document"></param>
+    /// <returns></returns>
+    /// <exception cref="HtmlSectionNotFoundException"></exception>
+    private static Uri ParseThumbnailGameLink(IDocument document)
     {
-        var postHeaderNode = document.QuerySelector(".review > div.pic > img") ?? throw new Exception();
-        var link = System.Web.HttpUtility.UrlDecode(postHeaderNode.Attributes["data-src"]?.Value);
+        var postHeaderNode = document.QuerySelector(".review > div.pic > img") ?? throw new HtmlSectionNotFoundException();
+        var imageLink = postHeaderNode.Attributes["data-src"] ?? throw new HtmlSectionNotFoundException();
+        var link = System.Web.HttpUtility.UrlDecode(imageLink.Value);
         return new Uri(link!);
     }
 }

@@ -17,13 +17,11 @@ public static partial class RegexHelper
     {
         return RemoveWhiteSpacePattern().Replace(input, "");
     }
-    public static string TakeNumber(string input)
+    public static string? TakeNumber(string input)
     {
         var temp = RemoveWhiteSpace(input);
         var value = TakeNumberPattern().Matches(temp).FirstOrDefault(x => !string.IsNullOrWhiteSpace(x.Value));
-        if (value is null) 
-            return string.Empty;
-        return value.Value;
+        return value?.Value;
     }
     public static string TakeBetweenQuote(string input)
     {

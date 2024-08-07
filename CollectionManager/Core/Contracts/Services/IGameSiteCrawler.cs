@@ -3,7 +3,7 @@
 namespace CollectionManager.Core.Contracts.Services;
 public interface IGameSiteCrawler
 {
-    Task<IEnumerable<PostDTO>> GetPostsAsync(uint skip, uint take,
+    IAsyncEnumerable<PostDTO> GetPostsAsync(uint skip, uint take,
         CancellationToken cancellationToken);
     IAsyncEnumerable<GamePageDTO> GetGamePagesAsync(IEnumerable<PostDTO> posts,
         CancellationToken cancellationToken);
